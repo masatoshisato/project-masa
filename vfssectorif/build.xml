@@ -1,0 +1,39 @@
+<project name="sd_network-vfssectorif" default="jar" basedir=".">
+
+    <property name="src.enc" value="Shift_JIS" />
+    <property environment="env" />
+
+    <target name="jar">
+        <mkdir dir="build/classes" />
+        <javac destdir="build/classes" debug="on" optimize="off"
+            deprecation="off">
+            <src path="src/java" />
+            <compilerarg value="-Xlint:unchecked" />
+        </javac>
+        <jar jarfile="build/${ant.project.name}.jar" basedir="build/classes"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="build" />
+    </target>
+
+    <target name="javadoc">
+        <mkdir dir="build" />
+        <javadoc
+            sourcepath="src/java"
+            packagenames="org.sd_network.*"
+            additionalparam="-breakiterator"
+            charset="${src.enc}"
+            encoding="${src.enc}"
+            author="true"
+            version="true"
+            use="true"
+            windowtitle="SD-NETWORK VFS Sector Driver I/F JavaDoc"
+            doctitle="SD-NETWORK VFS Sector Driver I/F Documentation"
+            header="&lt;b&gt;SD-NETWORK VFS Sector Driver I/F JavaDoc&lt;/b&gt;"
+            access="package"
+            classpath="${env.JAVA_HOME}/lib/tools.jar"
+            destdir="build/${ant.project.name}-docs" />
+    </target>
+
+</project>

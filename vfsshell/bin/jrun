@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+#  By Masatoshi sato
+#
+#  $Id: jrun,v 1.1 2005/02/28 01:35:32 sato Exp $
+#
+
+# MAX_MEM_SIZE=256m
+# MIN_MEM_SIZE=256m
+if [ -z JAVA_HOME ] ; then
+    echo "JAVA_HOME environment in not found."
+    exit 1
+fi
+
+############################################################
+# find APP_HOME
+PRG="$0"
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`/"$link"
+    fi
+done
+PRGDIR=`dirname "$PRG"`
+[ -z "$APP_HOME" ] && APP_HOME=`cd "$PRGDIR/.." ; pwd`
+
+############################################################
+# generate classpath.
+case `uname -s` in
+    CYGWIN_*)
+        SEPARATOR=";"
+        ;;
+    *)
+        SEPARATOR=":"
+        ;;
+esac
+classpath=""
+JARS=`find $APP_HOME/build -name *.jar -print`;
+for dir in $JARS; do
+    classpath=$classpath$SEPARATOR$dir;
+done
+JARS=`find $APP_HOME/lib -name *.jar -print`;
+for dir in $JARS; do
+    classpath=$classpath$SEPARATOR$dir;
+done
+
+############################################################ 
+# generate command line options.
+#xopt="-Xms$MIN_MEM_SIZE -Xmx$MAX_MEM_SIZE"
+
+############################################################
+# execute application.
+$JAVA_HOME/bin/java -classpath $classpath $dopt $xopt $@
+

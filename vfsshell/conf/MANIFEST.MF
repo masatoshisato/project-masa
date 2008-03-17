@@ -1,0 +1,2 @@
+Main-Class: org.sd_network.vfsshell.Main
+Class-Path: commons-cli-1.0.jar h2.jar sd_network-commons.jar sd_network-vfs.jar sd_network-vfssector.jar

@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# ut -- Execute unit test.
+#
+# author : Masatoshi Sato
+#
+# $Id: unittest,v 1.3 2005/09/16 16:59:36 sato Exp $
+
+# MAX_MEM_SIZE=256M
+# MIN_MEM_SIZE=256M
+
+############################################################
+# generate classpath.
+
+case `uname -s` in
+    CYGWIN_*)
+        separator=";"
+        ;;
+    *)
+        separator=":"
+        ;;
+esac
+
+classpath=""
+
+if [ -d "../lib" ]; then
+    JARS=`find ../lib -name *.jar -print`;
+    for dir in $JARS; do
+        classpath=$classpath$separator$dir;
+    done
+fi
+
+if [ -d "lib" ]; then
+    JARS=`find lib -name *.jar -print`;
+    for dir in $JARS; do
+        classpath=$classpath$separator$dir;
+    done
+fi
+
+if [ -d "build" ]; then
+    JARS=`find build -name *.jar -print`;
+    for dir in $JARS; do
+        classpath=$classpath$separator$dir;
+    done
+fi
+
+############################################################
+# generate command line options.
+#xopt="-Xms$MIN_MEM_SIZE -Xmx$MAX_MEM_SIZE"
+xopt=
+TestRunnerClass=org.sd_network.test.TestRunner
+
+############################################################
+# execute java application.
+java -classpath $classpath $xopt $TestRunnerClass $@ 

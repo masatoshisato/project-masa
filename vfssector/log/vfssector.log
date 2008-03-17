@@ -1,0 +1,114 @@
+2007/09/20 18:24:51 org.sd_network.db.ConnectionPool engageConnection
+Ú×ƒŒƒxƒ‹ (’á): [vfssector]: Create new connection.
+2007/09/20 18:24:52 org.sd_network.db.ConnectionPool createNewConnection
+î•ñ: [vfssector]: New JDBC connection was created.
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : a5eb825d-8e21-4b30-8d5f-915fea5669a3
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : cc88a469-d78c-4c15-8703-55daf0f332ed
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : e565a0a7-5453-4a9c-9c18-a01abf829c6d
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 21e93819-fd25-4ecb-a729-0faa93ba1161
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 6b0bad9b-ae74-432c-854f-5d32bbe5babb
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 0633accc-ca20-470a-8777-a0cd5e48e9cd
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : b2b7aa96-9397-457b-89cb-009e02d1fc6b
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 014a1893-0eaf-4808-aadc-d9b7bb46f00f
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 07f937d2-7625-4391-91b3-b69cfe0d849b
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. b2b7aa96-9397-457b-89cb-009e02d1fc6b
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. 07f937d2-7625-4391-91b3-b69cfe0d849b
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : a4aa4802-184f-4d67-bd5d-737bd9b32cd3
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 85873032-0f67-41f6-adf2-18b1b7777330
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 434760e2-128c-4d6a-ad5c-7a9714f33545
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 6342940b-51c3-4465-a38b-b73e9c65dbc0
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : bfeb6a7f-cdb9-436f-ad53-7a7e8756f83e
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 0cd95509-de9a-479b-9e6b-35e391a47526
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. a4aa4802-184f-4d67-bd5d-737bd9b32cd3
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. 85873032-0f67-41f6-adf2-18b1b7777330
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. 434760e2-128c-4d6a-ad5c-7a9714f33545
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 3a4b3a97-08ce-4e8d-bcfb-edb32165f1c7
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 6ea5c6d8-cf97-4e02-88f4-43301efb3957
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 0e194519-2fc7-437d-a9b9-3a3023a5002e
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 92e364fa-f5a1-487e-b578-7b74c937ef20
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 026e0a32-c8ba-4b50-ac06-e09102c5c5de
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 36785408-ec40-42a4-89a8-21a9141cea99
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 16b7a438-d51f-405d-98a0-c4f4f76bfc85
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 5124bc98-756f-4eee-b760-5a8a4561a70f
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 77f1cae5-764d-4fa9-b975-c962aba6b079
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : d294a01d-66ee-488c-a588-1d78c21247e4
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 9e5573b2-1fed-4738-a3f6-ace8393c76a8
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : b828e907-a173-48e6-bf90-c39cc3af4cf4
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : af0c0626-98d7-4a6a-b5a7-822eee91cb59
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 7e161f42-fd7d-4355-93de-7ce92619314e
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : e746ec3c-137e-4b18-b5cc-98984bccb844
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSectors
+î•ñ: Relevant sectors with the file deleted. fileID1
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSectors
+î•ñ: Relevant sectors with the file deleted. fileID2
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSectors
+î•ñ: Relevant sectors with the file deleted. 
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 14de78ef-4a1d-4cfe-9790-7745df0fe49b
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : fbda2739-6971-48ad-ab70-c1d947b673f3
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : e2a44326-f13c-4ad3-b39f-ca921a7b874c
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. fbda2739-6971-48ad-ab70-c1d947b673f3
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. 14de78ef-4a1d-4cfe-9790-7745df0fe49b
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. e2a44326-f13c-4ad3-b39f-ca921a7b874c
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSector
+î•ñ: The sector deleted. 
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 667fad91-39d2-4a10-9bd0-adb7ba9c26b6
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 47c3b12e-7e38-46ab-817e-21ebe81b35f4
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : bf48e8f7-0f74-4433-9fa9-c098ededb747
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : b7b93a89-2af1-4042-be1c-067d7835ebd6
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 70ac3b9a-ff28-4fe0-9c5d-f44ed921f156
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSectors
+î•ñ: Relevant sectors with the file deleted. fileID1
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB deleteSectors
+î•ñ: Relevant sectors with the file deleted. fileID2
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : ca67fbfd-1eb3-4b8d-91ad-79f7c97804e2
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 10e8ab17-740b-44aa-b5dd-4d5bfbde11c0
+2007/09/20 18:24:52 org.sd_network.vfssector.db.SectorDB create
+î•ñ: Sector created : 26069292-819e-49df-b862-7f5b2f66f8ce

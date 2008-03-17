@@ -1,0 +1,26 @@
+<project name="sd_network-commons" default="jar" basedir=".">
+
+    <property name="src.enc" value="Shift_JIS" />
+
+    <path id="classpath">
+        <pathelement path="build/classes" />
+        <fileset dir="lib">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <target name="jar">
+        <mkdir dir="build/classes" />
+        <javac destdir="build/classes" debug="on" optimize="off" deprecation="off">
+            <src path="src/java" />
+            <classpath refid="classpath" />
+            <compilerarg value="-Xlint:unchecked" />
+        </javac>
+        <jar jarfile="build/${ant.project.name}.jar" basedir="build/classes"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="build" />
+    </target>
+
+</project>

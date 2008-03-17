@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# ut -- Execute unit test.
+#
+# author : Masatoshi Sato
+#
+# $Id: unittest,v 1.3 2005/09/16 16:59:36 sato Exp $
+
+# MAX_MEM_SIZE=256M
+# MIN_MEM_SIZE=256M
+
+############################################################
+# check JAVA_HOME.
+if [ -z $JAVA_HOME ] ; then
+    echo "JAVA_HOME environment is not found."
+    exit 1
+fi
+
+############################################################
+# find home
+PRG="$0"
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`/"$link"
+    fi
+done
+PRGDIR=`dirname "$PRG"`
+[ -z "$APP_HOME" ] && APP_HOME=`cd "$PRGDIR/.." ; pwd`
+
+############################################################
+# generate classpath.
+
+case `uname -s` in
+    CYGWIN_*)
+        separator=";"
+        ;;
+    *)
+        separator=":"
+        ;;
+esac
+
+classpath=""
+JARS=`find $APP_HOME/lib -name *.jar -print`;
+for dir in $JARS; do
+    classpath=$classpath$separator$dir;
+done
+JARS=`find $APP_HOME/build -name *.jar -print`;
+for dir in $JARS; do
+    classpath=$classpath$separator$dir;
+done
+
+############################################################
+# generate command line options.
+#xopt="-Xms$MIN_MEM_SIZE -Xmx$MAX_MEM_SIZE"
+xopt=
+TestRunnerClass=org.sd_network.test.TestRunner
+
+############################################################
+# execute java application.
+$JAVA_HOME/bin/java -classpath $classpath $xopt $TestRunnerClass $@ 

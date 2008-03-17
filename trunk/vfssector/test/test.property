@@ -1,0 +1,10 @@
+org.sd_network.vfssector.db.JDBCDriver=org.h2.Driver
+org.sd_network.vfssector.db.URL=jdbc:h2:test/db/test
+org.sd_network.vfssector.db.UserName=sa
+org.sd_network.vfssector.db.Password=
+
+org.sd_network.db.ConnectionPool.0.ID=vfssector
+org.sd_network.db.ConnectionPool.0.JDBCDriver=org.h2.Driver
+org.sd_network.db.ConnectionPool.0.URL=jdbc:h2:test/db/test
+org.sd_network.db.ConnectionPool.0.UserName=sa
+org.sd_network.db.ConnectionPool.0.Password=

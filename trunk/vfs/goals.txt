@@ -1,0 +1,25 @@
+0) test conditions.
+
+    To validation API, it must use sample program for API test.
+    To validation Sector driver, it must use sample program for sector driver test.
+    These programs can make use by JUnit.
+
+1) DB Initialisation.
+
+    - create database account for operations.
+    - create tables.
+    - register initial data.
+
+2) features.
+
+    - register users. (only admin)
+    - delete users. (only admin)
+    - change user password.
+    - login.
+    - logout.
+    - sessio management.
+    - limitation of static system information.
+    - limitation of user storage information.
+    - directory operations.
+    - provide sector driver interface.
+    - file operations.

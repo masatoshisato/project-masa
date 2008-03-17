@@ -1,0 +1,27 @@
+[Required properties]
+
+	org.sd_network.vfs.db.JDBCDriver
+        Class path for JDBC driver.
+        (when use h2 database : org.h2.Driver)
+
+	org.sd_network.vfs.db.URL
+        URL to the database instance.
+        (when use h2 database : jdbc:h2:datafile/db/sample)
+
+	org.sd_network.vfs.db.UserName
+        User name for database administrator.
+        (when use h2 database : default "sa")
+
+	org.sd_network.vfs.db.Password
+        Password for database administrator.
+        (when use h2 database : default "")
+
+    org.sd_network.vfs.UserSession.Max
+        Maximum number of user session.
+
+    org.sd_network.vfs.FileSession.Max
+        Maximum number of file session.
+
+    org.sd_network.vfs.sector.SectorDriver
+        Class path for Sector Driver that implemented
+        org.sd_network.vfs.sector.SectorDriver interface.

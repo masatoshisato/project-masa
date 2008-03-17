@@ -1,0 +1,72 @@
+<project name="sd_network-vfssector" default="jar" basedir=".">
+
+    <property name="src.enc" value="Shift_JIS" />
+    <property name="commons.dir" value="../commons" />
+    <property name="commons.jar" value="${commons.dir}/build/sd_network-commons.jar" />
+    <property name="vfssectorif.dir" value="../vfssectorif" />
+    <property name="vfssectorif.jar" value="${vfssectorif.dir}/build/sd_network-vfssectorif.jar" />
+    <property name="lib.dir" value="../lib" />
+    <property environment="env" />
+
+    <path id="classpath">
+        <pathelement path="build/classes" />
+        <fileset dir="build">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <target name="libs">
+        <mkdir dir="build" />
+
+        <!-- for sd_network-commons -->
+        <ant antfile="build.xml" dir="${commons.dir}" target="jar" />
+        <copy file="${commons.jar}" todir="build" />
+
+        <!-- for vfssectorif -->
+        <ant antfile="build.xml" dir="${vfssectorif.dir}" target="jar" />
+        <copy file="${vfssectorif.jar}" todir="build" />
+
+        <!-- for ext libraries. -->
+        <copy file="${lib.dir}/h2.jar" todir="build" />
+    </target>
+
+    <target name="libs-clean">
+        <ant antfile="build.xml" dir="${commons.dir}" target="clean" />
+        <ant antfile="build.xml" dir="${vfssectorif.dir}" target="clean" />
+    </target>
+
+    <target name="jar" depends="libs">
+        <mkdir dir="build/classes" />
+        <javac destdir="build/classes" debug="on" optimize="off" deprecation="off">
+            <src path="src/java" />
+            <classpath refid="classpath" />
+            <compilerarg value="-Xlint:unchecked" />
+        </javac>
+        <jar jarfile="build/${ant.project.name}.jar" basedir="build/classes"/>
+    </target>
+
+    <target name="clean" depends="libs-clean">
+        <delete dir="build" />
+    </target>
+
+    <target name="javadoc">
+        <mkdir dir="build" />
+        <javadoc
+            sourcepath="src/java"
+            packagenames="org.sd_network.*"
+            additionalparam="-breakiterator"
+            charset="${src.enc}"
+            encoding="${src.enc}"
+            author="true"
+            version="true"
+            use="true"
+            windowtitle="SD-NETWORK VFS Sector Driver reference implementation JavaDoc"
+            doctitle="SD-NETWORK VFS Sector Driver reference implementation Documentation"
+            header="&lt;b&gt;SD-NETWORK VFS Sector Driver reference implementation JavaDoc&lt;/b&gt;"
+            access="package"
+            classpath="${env.JAVA_HOME}/lib/tools.jar"
+            classpathref="classpath"
+            destdir="build/${ant.project.name}-docs" />
+    </target>
+
+</project>

@@ -1,12 +1,6 @@
-#Release plan.
-
 = Introduction =
 Release plan for Project-MASA products.
 
 
 = Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+*Specification of data storage service API.(by 1 April, 2008)

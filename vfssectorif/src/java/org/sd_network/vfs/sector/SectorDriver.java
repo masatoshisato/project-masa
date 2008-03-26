@@ -39,8 +39,10 @@ public interface SectorDriver
      * If the sector related to specified fileID is not found, it is created.
      *
      * <p> The sector is to be write lock mode.
-     * When call {@link OutputStream#close()} method, write lock mode
-     * is released.
+     * While the sectors is write lock mode, {@link getOutputStream(String)},
+     * {@link getOutputStream(String, boolean)}, {@link getInputStream(String)}
+     * methods is failed. When call {@link OutputStream#close()} method,
+     * write lock mode is released.
      *
      * @param fileID    ID of a file that is related some sectors.
      * 

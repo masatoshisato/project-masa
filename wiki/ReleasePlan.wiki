@@ -3,4 +3,4 @@ Release plan for Project-MASA products.
 
 
 = Details =
-*Specification of data storage service API.(by 1 April, 2008)
+*Specification of data storage service API.(by 12 April, 2008)

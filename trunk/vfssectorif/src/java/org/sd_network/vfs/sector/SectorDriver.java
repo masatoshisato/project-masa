@@ -61,7 +61,12 @@ public interface SectorDriver
 
     /**
      * Return instance of implement class of OutputStream.
-     * If the sector related to specified fileID not found, it is create.
+     * This OutputStream is used for output dta to a storage managed by
+     * this driver. If the sector related to specified fileID not found,
+     * it is create.<br>
+     * You can specify a append mode by <tt>append</tt> parameter. 
+     * If set true to <tt>append</tt>, this driver work as append mode.
+     * If set false, this driver write data to sector as new file.
      *
      * <p> The sector is to be write lock mode.
      * When call {@link OutputStream#close()} method, write lock mode

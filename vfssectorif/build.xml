@@ -1,7 +1,42 @@
+<!--
+ Copyright 2008 Masatoshi sato.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<!--
+ This is a ANT's build script for vfs sector I/F classes.
+ This script contains follow target.
+
+ - "info"       : Display information of java used by ANT.
+ - "jar"        : make "build" directory and make jar file contains classes
+                  into "build" directory.
+ - "clean"      : delete "build" directory.
+ - "javadoc"    : make a API specifications of the vfs sector I/F to
+                  "build" directory.
+ - "release"    : execute "info", "clean", "jar" and "javadoc" in sequence.
+                  At last, zip all of the files to "vfssectorif-[date].zip".
+ 
+ Author : Masatoshi Sato
+-->
 <project name="sd_network-vfssectorif" default="jar" basedir=".">
 
     <property name="src.enc" value="Shift_JIS" />
     <property environment="env" />
+
+    <target name="info">
+        <echo>java.home=${java.home}</echo>
+        <echo>java.version=${java.version}</echo>
+    </target>
 
     <target name="jar">
         <mkdir dir="build/classes" />
@@ -36,4 +71,10 @@
             destdir="build/${ant.project.name}-docs" />
     </target>
 
+    <target name="release" depends="info, clean, jar, javadoc">
+        <tstamp />
+        <echo>${DSTAMP}</echo>
+        <zip destfile="build/${ant.project.name}-${DSTAMP}.zip" basedir="build"
+            excludes="classes/**" />
+    </target>
 </project>

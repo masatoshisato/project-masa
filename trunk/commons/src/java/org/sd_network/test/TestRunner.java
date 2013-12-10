@@ -94,14 +94,6 @@ public class TestRunner
             return;
         }
 
-        // Set configuration.
-        try {
-            Config.load(commandLine.getOptionValue("p"));
-        } catch (Exception e) {
-            printUsage(e.getMessage());
-            return;
-        }
-        
         // Set log configuration.
         try {
             LogManager.getLogManager().readConfiguration(
@@ -110,6 +102,14 @@ public class TestRunner
             printUsage(e.getMessage());
         }
 
+        // Set configuration.
+        try {
+            Config.load(commandLine.getOptionValue("p"));
+        } catch (Exception e) {
+            printUsage(e.getMessage());
+            return;
+        }
+        
         // Set test packages, classes, and methods.
         List packageList = commandLine.getArgList();
         TestRunner tester = new TestRunner();

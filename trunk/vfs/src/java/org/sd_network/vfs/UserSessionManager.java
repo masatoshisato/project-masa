@@ -26,8 +26,17 @@ import org.sd_network.vfs.db.User;
 import org.sd_network.vfs.db.UserDB;
 
 /**
- * This class manage user session.
- * The maximum number of session must be specified by properties file.
+ * Manage user sessions.
+ * This class is made by singleton pattern. When use this class, call
+ * <@link #getInstance()> method as follow.
+ *
+ * <p><pre>UserSessionManager usm = UserSessionManager.getInstance();</pre>
+ *
+ * <p> 
+ * This class refer to property "org.sd_network.vfs.UserSession.Max". 
+ * This property represent Maximum number of user session that is stored in 
+ * this instance. The user session is counted when call 
+ * <@link #authenticate(String, String)> method and logged in was success. 
  *
  * <p> $Id$
  *

@@ -1,0 +1,50 @@
+1) build commons project
+
+    This project is common library for any projects.
+    How to make commons.jar to commons/bulid/ directory is below.
+
+    Go to commons directory.
+    > cd commons
+
+    Build commons.jar for make to build directory.
+    > ant clean jar
+ 
+    Run tests all classes in this jar.
+    > bin/jut org.sd_network -l test/logging.properties -p test/test.properties
+
+
+2) build vfssectorif project
+
+    How to make vfssectorif.jar to vfssectorif/build/ directory is
+
+    > cd vfssectorif
+    > ant clean jar
+    
+    How to make javadoc of vfssectorif.jar to vfssector/build/vfssectorif-docs
+    directory is
+
+    > ant javadoc
+
+    This project for distribution interface class and it javadoc files for 
+    other vfs sector driver implementation project.
+    
+3) build vfssector project
+
+    How to make vfssector.jar to vfssector/build/ directory is
+
+    > cd vfssector
+    > ant clean jar
+    
+    This build includes other projects below
+
+        * commons.jar
+        * vfssectorif.jar
+
+    Also, copy h2.jar to build directory.
+
+    This is a reference implementation of vfssectorif.jar used by h2 database
+    as storage place.
+
+4) build vfs project
+
+    

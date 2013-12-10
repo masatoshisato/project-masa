@@ -19,6 +19,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +62,7 @@ public class Config
     }
 
     /**
-     * Load property from the specified file path by <tt>propertyFilePaht</tt>.
+     * Load property from the specified file path by <tt>propertyFilePath</tt>.
      *
      * @param propertyFilePath  Path to property file that is defined various
      *                          properties.
@@ -75,6 +76,11 @@ public class Config
         if (_instance == null)
             _instance = new Config();
         _instance.loadProperty(propertyFilePath);
+        _log.info("Property loaded from [" + propertyFilePath + "]");
+        for (Object name: Collections.list(_instance.propertyNames())) {
+            String value = _instance.getProperty((String) name);
+            _log.info("Name=[" + name + "], Value=[" + value + "]");
+        }
         return _instance;
     }
 

@@ -82,10 +82,10 @@ public class ConfigTest
         assertEquals("jdbc:h2:test/test2/db",
                 config.getProperty(
                     "org.sd_network.db.ConnectionParameter.2.URL"));
-        assertEquals("sa",
+        assertEquals("test",
                 config.getProperty(
                     "org.sd_network.db.ConnectionParameter.2.UserName"));
-        assertEquals("",
+        assertEquals("test",
                 config.getProperty(
                     "org.sd_network.db.ConnectionParameter.2.Password"));
     }

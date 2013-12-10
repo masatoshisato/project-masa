@@ -23,6 +23,9 @@ case `uname -s` in
     CYGWIN_*)
         separator=";"
         ;;
+    MINGW32_*)
+        separator=";"
+        ;;
     *)
         separator=":"
         ;;

@@ -33,7 +33,7 @@ import org.sd_network.vfs.db.User;
  * <ul>
  *  <li> The session ID.
  *  <li> Collection of a file session.
- *  <li> The instance of the User class that is logged in.
+ *  <li> The instance of <@link org.sd_network.vfs.db.User> that is logged in.
  * </ul>
  *
  * <p> Maximum number of file session that can stored is specified by

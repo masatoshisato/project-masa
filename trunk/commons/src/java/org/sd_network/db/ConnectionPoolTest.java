@@ -112,37 +112,51 @@ public class ConnectionPoolTest
     // インスタンスチェック
 
     /**
-     * プール識別子を指定しないで、デフォルト識別子でConnectionPoolインスタンス
-     * を取得できる事を確認します。
+     * 識別子で指定したConnectionPoolインスタンスを取得できる事を確認します。
      */
-    public void testInstanceCheck_Default()
+    public void testInstanceCheck_Normal()
         throws Exception
     {
-        ConnectionPool pool = ConnectionPool.getInstance();
-        assertNotNull(pool);
-        assertEquals("default", pool.getID());
-        assertEquals(0, pool.getCheckedOutConnections());
-        assertEquals(0, pool.getCurrentPoolSize());
+        // ID is not specified (=default)
+        ConnectionPool poolNoID = ConnectionPool.getInstance();
+        assertNotNull(poolNoID);
+        assertEquals("default", poolNoID.getID());
+        assertEquals(0, poolNoID.getCheckedOutConnections());
+        assertEquals(0, poolNoID.getCurrentPoolSize());
 
-        ConnectionParameter parameter = pool.getConnectionParameter();
-        assertEquals("default", parameter.getID());
-    }
+        ConnectionParameter parameterNoID = poolNoID.getConnectionParameter();
+        assertEquals("default", parameterNoID.getID());
 
-    /**
-     * 特定の識別子でConnectionPoolのインスタンスが取得できる事を
-     * 確認します。
-     */
-    public void testInstanceCheck_SpecifiedID()
-        throws Exception
-    {
-        ConnectionPool pool = ConnectionPool.getInstance("test1");
-        assertNotNull(pool);
-        assertEquals("test1", pool.getID());
-        assertEquals(0, pool.getCheckedOutConnections());
-        assertEquals(0, pool.getCurrentPoolSize());
+        // ID is default.
+        ConnectionPool poolDefault = ConnectionPool.getInstance("default");
+        assertNotNull(poolDefault);
+        assertEquals("default", poolDefault.getID());
+        assertEquals(0, poolDefault.getCheckedOutConnections());
+        assertEquals(0, poolDefault.getCurrentPoolSize());
 
-        ConnectionParameter parameter = pool.getConnectionParameter();
-        assertEquals("test1", parameter.getID());
+        ConnectionParameter parameterDefault = 
+            poolDefault.getConnectionParameter();
+        assertEquals("default", parameterDefault.getID());
+
+        // ID is test1.
+        ConnectionPool pool1 = ConnectionPool.getInstance("test1");
+        assertNotNull(pool1);
+        assertEquals("test1", pool1.getID());
+        assertEquals(0, pool1.getCheckedOutConnections());
+        assertEquals(0, pool1.getCurrentPoolSize());
+
+        ConnectionParameter parameter1 = pool1.getConnectionParameter();
+        assertEquals("test1", parameter1.getID());
+
+        // ID is test2.
+        ConnectionPool pool2 = ConnectionPool.getInstance("test2");
+        assertNotNull(pool2);
+        assertEquals("test2", pool2.getID());
+        assertEquals(0, pool2.getCheckedOutConnections());
+        assertEquals(0, pool2.getCurrentPoolSize());
+
+        ConnectionParameter parameter2 = pool2.getConnectionParameter();
+        assertEquals("test2", parameter2.getID());
     }
 
     /**
@@ -171,12 +185,24 @@ public class ConnectionPoolTest
     public void testEngageCheck_NewConnection()
         throws Exception
     {
-        ConnectionPool pool = ConnectionPool.getInstance();
-        Connection con = pool.engageConnection(1);
-        assertNotNull(con);
-        assertEquals(1, pool.getCheckedOutConnections());
-        assertEquals(0, pool.getCurrentPoolSize());
-        con.close();
+        // ID is not specified (=default)
+        ConnectionPool poolNoID = ConnectionPool.getInstance();
+        Connection conNoID = poolNoID.engageConnection(0);
+        assertNotNull(conNoID);
+        assertEquals(1, poolNoID.getCheckedOutConnections());
+        assertEquals(0, poolNoID.getCurrentPoolSize());
+        conNoID.close();
+
+        // ID is test1.
+        ConnectionPool pool1 = ConnectionPool.getInstance("test1");
+        Connection con1 = pool1.engageConnection(0);
+        assertNotNull(con1);
+        assertEquals(1, pool1.getCheckedOutConnections());
+        assertEquals(0, pool1.getCurrentPoolSize());
+        con1.close();
+
+        // Do not this test for ID [test2] because of set illegal parameters 
+        // to it.
     }
 
     /**
@@ -185,25 +211,34 @@ public class ConnectionPoolTest
     public void testEngageCheck_ExistsConnection()
         throws Exception
     {
-        ConnectionPool pool = ConnectionPool.getInstance();
-        assertEquals(0, pool.getCheckedOutConnections());
-        assertEquals(0, pool.getCurrentPoolSize());
+        // get connection with ID is not specified (=default)
+        ConnectionPool poolNoID = ConnectionPool.getInstance();
+        assertEquals(0, poolNoID.getCheckedOutConnections());
+        assertEquals(0, poolNoID.getCurrentPoolSize());
 
-        Connection con1 = pool.engageConnection(1);
-        assertNotNull(con1);
-        assertEquals(1, pool.getCheckedOutConnections());
-        assertEquals(0, pool.getCurrentPoolSize());
+        Connection conNoID1 = poolNoID.engageConnection(0);
+        assertNotNull(conNoID1);
+        assertEquals(1, poolNoID.getCheckedOutConnections());
+        assertEquals(0, poolNoID.getCurrentPoolSize());
 
-        con1.close();
-        assertEquals(0, pool.getCheckedOutConnections());
-        assertEquals(1, pool.getCurrentPoolSize());
+        String conNoID1String = conNoID1.toString();
+
+        // release to pool.
+        conNoID1.close(); 
+        assertEquals(0, poolNoID.getCheckedOutConnections());
+        assertEquals(1, poolNoID.getCurrentPoolSize());
         
-        Connection con2 = pool.engageConnection(1);
-        assertNotNull(con2);
-        assertEquals(1, pool.getCheckedOutConnections());
-        assertEquals(0, pool.getCurrentPoolSize());
+        // get connection again from pool.
+        Connection conNoID2 = poolNoID.engageConnection(0);
+        assertNotNull(conNoID2);
+        assertEquals(1, poolNoID.getCheckedOutConnections());
+        assertEquals(0, poolNoID.getCurrentPoolSize());
 
-        con2.close();
+        // check same connection (engaged pooled connection)
+        assertEquals(conNoID1String, conNoID2.toString());
+
+        // release to pool.
+        conNoID2.close();
     }
 
     /**
@@ -232,31 +267,40 @@ public class ConnectionPoolTest
     public void testEngageCheck_TimeoutByAllConnectionIsUsingError()
         throws Exception
     {
+        // Prepare: get connection to max size.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
-        Connection[] cons = new Connection[20];
+        Connection[] cons = new Connection[ConnectionPool.MAX_POOL_SIZE];
         for (int idx = 0; idx < ConnectionPool.MAX_POOL_SIZE; idx++) {
-            cons[idx] = pool.engageConnection(1);
+            cons[idx] = pool.engageConnection(0);
         }
-        assertEquals(20, pool.getCheckedOutConnections());
+
+        // Check pooled size is max.
+        assertEquals(
+                ConnectionPool.MAX_POOL_SIZE, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
 
+        // Check error occur by pooled size is max.
         try {
-            Connection con = pool.engageConnection(1);
+            Connection con = pool.engageConnection(0);
             if (con != null)
                 con.close();
             fail("Connection pool size check error.");
         } catch (ConnectTimeoutException e) {
             assertEquals(
                     "[test1]: Failed to engage connection.", e.getMessage());
-            assertEquals(20, pool.getCheckedOutConnections());
+            assertEquals(ConnectionPool.MAX_POOL_SIZE, 
+                    pool.getCheckedOutConnections());
             assertEquals(0, pool.getCurrentPoolSize());
         }
 
+        // close all connections.
         for (int idx = 0; idx < cons.length; idx++) {
             cons[idx].close();
         }
+
+        // Check pooled connection size.
         assertEquals(0, pool.getCheckedOutConnections());
-        assertEquals(20, pool.getCurrentPoolSize());
+        assertEquals(ConnectionPool.MAX_POOL_SIZE, pool.getCurrentPoolSize());
     }
 
     //////////////////////////////////////////////////////////// 
@@ -269,36 +313,48 @@ public class ConnectionPoolTest
     public void testReleaseCheck_OK()
         throws Exception
     {
+        // Prepare: get a connection from pool.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
-        Connection con = pool.engageConnection(1);
+        Connection con = pool.engageConnection(0);
+
+        // Check pool size and checked out connection after get connection.
         assertEquals(1, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
 
+        // Check pool size and checked out connection after close connection.
         con.close();
         assertEquals(0, pool.getCheckedOutConnections());
         assertEquals(1, pool.getCurrentPoolSize());
     }
 
     /**
-     * 既に切断されているConnectionをプールに返却できる事を確認します。
-     * ただし、インスタンスはプールされず、チェックアウト数だけカウント
-     * します。
+     * 既に切断されているConnectionをプールに返却したときにインスタンスは
+     * プールされず、チェックアウト数だけカウントします。
+     * このテストでは、手動でConnectionを生成し、Poolに強制的に返却処理を
+     * 行います。
      */
     public void testReleaseCheck_ClosedConnection()
         throws Exception
     {
+        // Prepare: Get connection for count up checked out connection.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
-        Connection con1 = pool.engageConnection(1);
+        Connection con1 = pool.engageConnection(0);
         assertEquals(1, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
 
+        // Create connection with parameter in the pool.
         ConnectionParameter parameter = pool.getConnectionParameter();
         Class.forName(parameter.getJDBCDriver());
         Connection con2 = DriverManager.getConnection(
                 parameter.getURL(),
                 parameter.getUserName(),
                 parameter.getPassword());
+
+        // Force close connection.
         con2.close();
+
+        // release to pool. This connection is already closed, count down
+        // checked out connection count only, and connection was destroied.
         pool.releaseConnection(con2);
         assertEquals(0, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize()); // 返却なし
@@ -395,13 +451,22 @@ public class ConnectionPoolTest
     public void testClearCheck_OK()
         throws Exception
     {
+        // get ConnectionPool instance.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
-
-        // 初期状態チェック
         assertEquals(0, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
 
-        // プールの最大値までチェックアウト
+        //////////////////////////////////////////////////////////// 
+        // Tests call #clear() method immidietally after #getInstance() method
+        // called.
+        pool.clear();
+        assertEquals(0, pool.getCheckedOutConnections());
+        assertEquals(0, pool.getCurrentPoolSize());
+
+        //////////////////////////////////////////////////////////// 
+        // Tests call #clear() method after release all connection.
+        
+        // Engage all connection.
         Connection[] cons = new Connection[ConnectionPool.MAX_POOL_SIZE];
         for (int idx = 0; idx < cons.length; idx++) {
             cons[idx] = pool.engageConnection(1);
@@ -410,7 +475,7 @@ public class ConnectionPoolTest
                 ConnectionPool.MAX_POOL_SIZE, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
 
-        // 全てのConnectionをリリース
+        // Release all connection.
         for (int idx = 0; idx < cons.length; idx++) {
             cons[idx].close();
         }
@@ -422,39 +487,49 @@ public class ConnectionPoolTest
         pool.clear();
         assertEquals(0, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
+
+        // Check closed connection.
+        for (int idx = 0; idx < cons.length; idx++) {
+            assertTrue(cons[idx].isClosed());
+        }
     }
 
     /**
-     * チェックアウトされているConnectionが存在する場合でも
-     * {@link ConnectionPool#clear()} メソッドで初期化される事を確認します。
+     * {@link ConnectionPool#clear()} メソッド呼び出し時にチェックアウト
+     * されているConnectionが存在する場合に {@link ConnectionPoolException} 
+     * が発生する事を確認します。
      */
     public void testClearCheck_ExistCheckedOutConnections()
         throws Exception
     {
+        // Get ConnectionPool instance.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
 
-        // 初期状態チェック
+        // Check initial status.
         assertEquals(0, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
 
-        // Connection取得
-        Connection[] cons = new Connection[ConnectionPool.MAX_POOL_SIZE];
-        for (int idx = 0; idx < cons.length; idx++) {
-            cons[idx] = pool.engageConnection(1);
-        }
-        assertEquals(cons.length, pool.getCheckedOutConnections());
+        // Engage connection.
+        Connection con = pool.engageConnection(1);
+        assertEquals(1, pool.getCheckedOutConnections());
         assertEquals(0, pool.getCurrentPoolSize());
-
-        // 半分リリース
-        for (int idx = 0; idx < (cons.length / 2); idx++) {
-            cons[idx].close();
-        }
-        assertEquals((cons.length / 2), pool.getCheckedOutConnections());
-        assertEquals(cons.length - (cons.length / 2), pool.getCurrentPoolSize());
 
         // clear.
-        pool.clear();
-        assertEquals(0, pool.getCheckedOutConnections());
-        assertEquals(0, pool.getCurrentPoolSize());
+        try {
+            pool.clear();
+            fail("Checked out connection is exists, " +
+                    "but not thrown a ConnectionPoolException.");
+        } catch (ConnectionPoolException e) {
+            assertEquals(
+                    "Connection of ConnectionPool [test1] is still used. " +
+                    "Number of checked out connection is [1].",
+                    e.getMessage());
+        } finally {
+            try {
+                con.close();
+            } catch (ConnectionPoolException e) {
+                // nothing to do.
+            }
+        }
     }
 }

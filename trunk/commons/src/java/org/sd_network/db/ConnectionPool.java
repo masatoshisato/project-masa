@@ -148,8 +148,11 @@ public class ConnectionPool
         if (ID == null)
             ID = "default";
 
+        _log.log(Level.FINE, "Specified parameter ID=[" + ID + "]");
         ConnectionPool pool = _instanceMap.get(ID);
         if (pool == null) {
+            _log.log(Level.FINE, 
+                    "pool[" + ID + "] is null. Create new ConnectionPool.");
             ConnectionParameter parameter = ConnectionParameter.getInstance(ID);
             if (parameter == null)
                 throw new ConnectionPoolException(
@@ -175,7 +178,9 @@ public class ConnectionPool
         _checkedOutConnections = 0;
         _ID = ID;
         _parameter = parameter;
-        _log.log(Level.FINE, "ConnectionPool [" + ID + "] is created.");
+        _log.log(Level.FINE, 
+                "ConnectionPool [" + ID + "] is created " +
+                "with Parameter=" + parameter.toString() + ".");
     }
 
     /////////////////////////////////////////////////////////////////////
@@ -213,17 +218,27 @@ public class ConnectionPool
      *          場合にスローします。
      */
     public synchronized Connection engageConnection(long timeout) {
+
+        _log.log(Level.FINE, "Specified parameter timeout=[" + timeout + "].");
         Connection con = null;
 
         if (_connections.size() > 0) {
+            _log.log(Level.FINE,
+                    "Pooled connection is already exists" +
+                    "[" + _connections.size() + "]. " +
+                    "Get connection from pool.");
             con = _connections.remove(_connections.size() - 1);
             _checkedOutConnections++;
-            _log.log(Level.FINE, "Checked out connection increment[" +
-                    _checkedOutConnections + "].");
+            _log.log(Level.FINE, 
+                    "Checked out connection increment" +
+                    "[" + _checkedOutConnections + "].");
+            _log.log(Level.FINE,
+                    "Pooled connection is [" + _connections.size() + "].");
             return new ConnectionProxy(this, con);
         }
 
         for (; timeout >= 0; timeout--) {
+            _log.log(Level.FINE, "Try create new connection.");
 
             // ConnectionPoolに空きがある場合、新しいConnectionの生成を
             // 試みる。生成できなかった場合、ネットワーク障害やデータベース側の
@@ -235,6 +250,10 @@ public class ConnectionPool
                             "[" + _ID + "]: Created new connection.");
                     break;
                 }
+            } else {
+                _log.log(Level.FINE,
+                        "Pooled connection is already max. " +
+                        "Wait for release connection other session.");
             }
 
             // Connectionの生成ができない場合、WAIT_TIMEだけ待って
@@ -245,7 +264,9 @@ public class ConnectionPool
             } catch (InterruptedException e) {
             }
             if (_connections.size() > 0) {
-                con = _connections.getLast();
+                _log.log(Level.FINE,
+                        "Find released connection in Pool, get it.");
+                con = _connections.remove(_connections.size() - 1);
                 break;
             }
         }
@@ -266,17 +287,23 @@ public class ConnectionPool
     /**
      * 保持しているすべてのConnectionをクローズし、ConnectionPoolを初期化
      * します。もし、このメソッドが呼ばれた時点で使用中のConnectionがある
-     * 場合でも、強制的にインスタンス情報を初期化します。
+     * 場合は、このメソッドは失敗します。
+     *
+     * @throws  ConnectionPoolException
+     *          メソッドが呼び出されたときに、使用中のConnection
+     *          （チェックアウトされたConnection）が存在する場合にスローします。
      */
-    void clear() {
-        if (_checkedOutConnections != 0)
-            _log.log(Level.WARNING,
+    void clear()
+        throws ConnectionPoolException
+    {
+        // Check checked out connection is exists.
+        if (_checkedOutConnections > 0)
+            throw new ConnectionPoolException(
                     "Connection of ConnectionPool [" + _ID + "] " +
                     "is still used. Number of checked out connection is " +
-                    "[" + _checkedOutConnections + "].", 
-                    new ConnectionPoolException());
+                    "[" + _checkedOutConnections + "].");
+                    
         _log.log(Level.FINE, "ConnectionPool [" + _ID + "] is clear.");
-        _checkedOutConnections = 0;
 
         while (_connections.size() > 0) {
             Connection con = _connections.remove(_connections.size() - 1);

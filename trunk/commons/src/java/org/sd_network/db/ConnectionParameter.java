@@ -275,4 +275,21 @@ class ConnectionParameter
     String getPassword() {
         return _password;
     }
+
+    //////////////////////////////////////////////////////////// 
+    // Public methods.
+
+    /**
+     * ConnectionParameterクラスの文字列表現を返します。
+     *
+     * @return  ConnectionParameterクラスの文字列表現。
+     */
+    public String toString() {
+        return 
+                "ID = " + _ID +
+                ", JDBCDriver = " + _JDBCDriver +
+                ", URL = " + _URL +
+                ", UserName = " + _userName +
+                ", Password = xxx";
+    }
 }

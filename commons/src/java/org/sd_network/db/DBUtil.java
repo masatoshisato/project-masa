@@ -98,7 +98,7 @@ public class DBUtil
         throws DBException
     {
         ConnectionPool pool = ConnectionPool.getInstance(poolName);
-        Connection con = pool.engageConnection(1);
+        Connection con = pool.engageConnection(0);
         try {
             con.setAutoCommit(true);
             return insert(con, tableName, columnMap);

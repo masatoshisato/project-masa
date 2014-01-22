@@ -43,50 +43,50 @@ public class ConfigTest
 
         assertEquals("default",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.0.ID"));
+                    "org.sd_network.db.ConnectionParameter.default.ID"));
         assertEquals("org.h2.Driver",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.0.JDBCDriver"));
-        assertEquals("jdbc:h2:test/default/db",
+                    "org.sd_network.db.ConnectionParameter.default.JDBCDriver"));
+        assertEquals("jdbc:h2:test/db/default/db",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.0.URL"));
+                    "org.sd_network.db.ConnectionParameter.default.URL"));
         assertEquals("sa",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.0.UserName"));
+                    "org.sd_network.db.ConnectionParameter.default.UserName"));
         assertEquals("",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.0.Password"));
+                    "org.sd_network.db.ConnectionParameter.default.Password"));
 
         assertEquals("test1",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.1.ID"));
+                    "org.sd_network.db.ConnectionParameter.test1.ID"));
         assertEquals("org.h2.Driver",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.1.JDBCDriver"));
-        assertEquals("jdbc:h2:test/test1/db",
+                    "org.sd_network.db.ConnectionParameter.test1.JDBCDriver"));
+        assertEquals("jdbc:h2:test/db/test1/db",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.1.URL"));
+                    "org.sd_network.db.ConnectionParameter.test1.URL"));
         assertEquals("sa",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.1.UserName"));
+                    "org.sd_network.db.ConnectionParameter.test1.UserName"));
         assertEquals("",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.1.Password"));
+                    "org.sd_network.db.ConnectionParameter.test1.Password"));
 
         assertEquals("test2",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.2.ID"));
+                    "org.sd_network.db.ConnectionParameter.test2.ID"));
         assertEquals("org.h2.Driver",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.2.JDBCDriver"));
-        assertEquals("jdbc:h2:test/test2/db",
+                    "org.sd_network.db.ConnectionParameter.test2.JDBCDriver"));
+        assertEquals("jdbc:h2:test/db/test1/db",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.2.URL"));
+                    "org.sd_network.db.ConnectionParameter.test2.URL"));
         assertEquals("test",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.2.UserName"));
+                    "org.sd_network.db.ConnectionParameter.test2.UserName"));
         assertEquals("test",
                 config.getProperty(
-                    "org.sd_network.db.ConnectionParameter.2.Password"));
+                    "org.sd_network.db.ConnectionParameter.test2.Password"));
     }
 }

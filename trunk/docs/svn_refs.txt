@@ -1,0 +1,8 @@
+* SVNリポジトリで管理したくないファイルを登録する
+
+ > cd <directory name>
+ > vi .svnignore
+ > svn add .svnignore
+ > svn propset svn:ignore -F .svnignore .
+ > svn commit
+

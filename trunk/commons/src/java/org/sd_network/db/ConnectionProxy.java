@@ -112,6 +112,8 @@ public class ConnectionProxy
     /**
      * このインスタンスが保持しているConnectionが既にConnectionPoolに
      * 返却されているかどうかを例外スローせずに確認します。
+     * このインスタンスが保持しているConnectionが <tt>null</tt> の場合、
+     * 既にPoolに返却済みであり、closeされているとみなします。
      *
      * @return  Connectionが既にConnectionPoolに返却済みの場合は <tt>true</tt>
      *          を返します。
@@ -153,6 +155,19 @@ public class ConnectionProxy
         } finally {
             _con = null;
         }
+    }
+    
+    /////////////////////////////////////////////////////////////////////
+    // Public methods.
+
+    /**
+     * このインスタンスの文字列形式を返します。
+     * ConnectionProxyのインスタンスは {@link ConnectionPool} から
+     * Connectionを取得する際に毎回生成されますが、保持しているConnection
+     * 自体はPoolされているインスタンスが設定されます。
+     */
+    public String toString() {
+        return _con.toString();
     }
 
     /////////////////////////////////////////////////////////////////////

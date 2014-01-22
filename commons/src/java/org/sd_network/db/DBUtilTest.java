@@ -71,7 +71,7 @@ public class DBUtilTest
     /**
      * Test case that insert data to a database normally.
      */
-    public void testInsert()
+    public void testInsert_UseDefaultPool()
         throws Exception
     {
         Map<String, Object> columnMap = new HashMap<String, Object>();

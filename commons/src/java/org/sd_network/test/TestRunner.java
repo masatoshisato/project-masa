@@ -48,11 +48,40 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import org.sd_network.loader.LocalClassLoader;
 import org.sd_network.util.Config;
 import org.sd_network.util.JarUtil;
 
 /**
- * Run tests for junit framework.
+ * This class is customized test runner.
+ * This class extended TestSuite of junit framework. This has Main method
+ * for run by cui. 
+ *
+ * <p> <b> Usage </b><br>
+ * org.sd_network.test.TestRunner CLASS_PATH_PREFIX &lt;OPTIONS&gt;
+ *
+ * <p><b> Parameters. </b><br>
+ * <ul>
+ *  <li><b> CLASS_PATH_PREFIX </b><br>
+ *      You have to specifed class path prefix of test classes. 
+ *      For example, if you specified "org.sd_network", run all test cases 
+ *      of TestCase classes under the "org.sd_network" name space. 
+ *  <li><b> -l LOGGER_PROPERTY_FILE_PATH </b><br>
+ *      You have to specified property file path for Logger 
+ *      (for java.util.logging packages)
+ *  <li><b> -h </b><br>
+ *      Display usage.
+ *  <li><b> -p TEST_PROPERTY_FILE_PATH </b><br>
+ *      You have to specified property file path which is used to target
+ *      test classes.
+ * </ul>
+ *
+ * <p>
+ * When execute Main method of this class, set system property "UnitTest"
+ * to "TRUE". If you expect used class or method for unit test only, check
+ * system property "UnitTest" is "TRUE" in the class or method, and throws
+ * {@link java.lang.UnsupportedOperationException} if not set the system
+ * property.
  *
  * <p> $Id$
  *
@@ -72,8 +101,13 @@ public class TestRunner
     private static final Options _options;
     static {
         Options buf = new Options();
-        buf.addOption(new Option("p", "property", true, "property file."));
-        buf.addOption(new Option("l", "log", true, "log configuration file."));
+        buf.addOption(new Option("p", "property", true, 
+                    "Property file which is used to target test classes."));
+        buf.addOption(new Option("l", "log", true, 
+                    "Log configuration file path for Logger" +
+                    "(java.util.logger)."));
+        buf.addOption(new Option("h", "help", false, 
+                    "Display usage."));
         _options = buf;
     };
 
@@ -82,15 +116,27 @@ public class TestRunner
     ////////////////////////////////////////////////////////////
     // Execute entry point.
 
-    public static void main(String[] args)
-        throws Exception
-    {
+    /**
+     * This is a execute entry point.
+     *
+     * @param args  Array of command line parameters.
+     */
+    public static void main(String[] args) {
+        // set system property "UnitTest"
+        System.setProperty("UnitTest", "TRUE");
+
         // parse command line parameters.
         CommandLine commandLine = null;
         try {
             commandLine = _parser.parse(_options, args);
         } catch (ParseException e) {
             printUsage(e.getMessage());
+            return;
+        }
+
+        // Display Usage.
+        if (commandLine.hasOption("h")) {
+            printUsage();
             return;
         }
 
@@ -109,15 +155,19 @@ public class TestRunner
             printUsage(e.getMessage());
             return;
         }
-        
+
         // Set test packages, classes, and methods.
-        List packageList = commandLine.getArgList();
+        String[] packageNames = commandLine.getArgs();
         TestRunner tester = new TestRunner();
-        tester.run(packageList);
+        tester.run(packageNames);
     }
 
     private static final void printUsage(String errorMessage) {
         _out.println(errorMessage);
+        printUsage();
+    }
+
+    private static final void printUsage() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("TestRunner", _options);
     }
@@ -125,9 +175,9 @@ public class TestRunner
     ////////////////////////////////////////////////////////////
     // Testing methods.
 
-    public void run(List pacList) {
+    private void run(String[] packageNames) {
         List <Class <? extends TestCase>> testClassList =
-            getTestClasses(pacList);
+            getTestClasses(packageNames);
         _out.println("TestCase is " + testClassList.size());
 
         List <TestFailure> failed = new ArrayList <TestFailure> ();
@@ -184,9 +234,11 @@ public class TestRunner
      * Return List collection that is included class objects that extends from
      * TestCase class.
      */
-    private List <Class <? extends TestCase>> getTestClasses(List pacList) {
-        List <String> jarFiles = JarUtil.getJarFiles();
-        if (jarFiles.size() == 0)
+    private List <Class <? extends TestCase>> getTestClasses(
+            String[] packageNames)
+    {
+        List <String> jarFileNameList = JarUtil.getJarFiles();
+        if (jarFileNameList.size() == 0)
             throw new IllegalStateException(
                 "Not found any jar files in classpath.");
 
@@ -199,43 +251,51 @@ public class TestRunner
                     ": " + e.getMessage());
         }
 
-        List <Class <?>> allCls = new ArrayList <Class <?>> ();
-        for (int idx = 0; idx < jarFiles.size(); idx++) {
+        List <String> classNameList = new ArrayList <String> ();
+        for (String jarFileName : jarFileNameList) {
             try {
-                allCls.addAll(JarUtil.getClasses(jarFiles.get(idx)));
+                classNameList.addAll(JarUtil.getClassNameList(jarFileName));
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException(
-                        "Not found jar file. (real file) : " + e.getMessage());
+                        "Not found jar file. : " + e.getMessage());
+            } catch (IOException e) {
+                throw new IllegalStateException(
+                        "I/O error occurred. : " + e.getMessage());
             }
         }
 
-        List <Class <? extends TestCase>> testCls =
+        List <Class <? extends TestCase>> testClassList =
             new ArrayList <Class <? extends TestCase>> ();
-        Iterator <Class <?>> classes = allCls.iterator();
-        while (classes.hasNext()) {
-            Class <?> cls = classes.next();
-
-            // ignore an abstract class.
-            if (Modifier.isAbstract(cls.getModifiers()))
-                continue;
+        for (String className : classNameList) {
+            Class <?> cls = null;
+            try {
+                cls = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(
+                        "Not found class " +
+                        " [" + className + "] in classpath. : " +
+                        e.getMessage());
+            }
 
             // ignore a class unextends from TestCase.
             Class <? extends TestCase> testCaseClass = null;
             try {
                 testCaseClass = cls.asSubclass(TestCase.class);
             } catch (ClassCastException e) {
+                _log.log(Level.FINE, 
+                        "Class [" + className + "] does not extends from" +
+                        " TestCase. Ignore this class.");
                 continue;
             }
 
             // check class path that is target or not.
-            for (Iterator pacs = pacList.iterator(); pacs.hasNext(); ) {
-                if (cls.getName().startsWith((String) pacs.next())) {
-                    testCls.add(testCaseClass);
-                    break;
+            for (String targetPrefix : packageNames) {
+                if (cls.getName().startsWith(targetPrefix)) {
+                    testClassList.add(testCaseClass);
                 }
             }
         }
-        return testCls;
+        return testClassList;
     }
 
 

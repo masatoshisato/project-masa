@@ -71,9 +71,7 @@ public class DBUtilTest
     /**
      * Test case that insert data to a database normally.
      */
-    public void testInsert_UseDefaultPool()
-        throws Exception
-    {
+    public void testInsert_UseDefaultPool() {
         Map<String, Object> columnMap = new HashMap<String, Object>();
         columnMap.put("id", "testID1");
         columnMap.put("name", "name1");
@@ -83,9 +81,7 @@ public class DBUtilTest
     /**
      * Test case that NullPointerException is thrown.
      */
-    public void testInsert_NullPointer()
-        throws Exception
-    {
+    public void testInsert_NullPointer() {
         // by specify null to "tableName" argument.
         Map<String, Object> columnMap = new HashMap<String, Object>();
         try {
@@ -107,9 +103,7 @@ public class DBUtilTest
     /**
      * Test case that IllegalArgumentException is thrown.
      */
-    public void testInsert_IllegalArgument()
-        throws Exception
-    {
+    public void testInsert_IllegalArgument() {
         // by specify empty Map to "columnMap" argument.
         Map<String, Object> columnMap = new HashMap<String, Object>();
         try {
@@ -123,9 +117,7 @@ public class DBUtilTest
     /**
      * Test case that update specified record normally.
      */
-    public void testUpdate()
-        throws Exception
-    {
+    public void testUpdate() {
         assertEquals(0, DBUtil.update("DELETE FROM unit_test_table"));
 
         Map<String, Object> columnMap = new HashMap<String, Object>();
@@ -142,9 +134,7 @@ public class DBUtilTest
     /**
      * Test case that IllegalArgumentExcepiton is thrown.
      */
-    public void testUpdate_IllegalArgument_sql()
-        throws Exception
-    {
+    public void testUpdate_IllegalArgument_sql() {
         // by specify empty string to "sql" argument.
         try {
             DBUtil.update("", new Object[] {"testID1"});
@@ -157,9 +147,7 @@ public class DBUtilTest
     /**
      * Test case that NullPointerException is thrown.
      */
-    public void testUpdate_NullPointer()
-        throws Exception
-    {
+    public void testUpdate_NullPointer() {
         // by specify null to "sql" argument.
         try {
             DBUtil.update(null, new Object[] {"testID1"});
@@ -182,9 +170,7 @@ public class DBUtilTest
     /**
      * Test case that execute sql statement normally.
      */
-    public void testExecute()
-        throws Exception
-    {
+    public void testExecute() {
         DBUtil.execute(
                 "ALTER TABLE unit_test_table " +
                 "ADD created TIMESTAMP DEFAULT NOW()");
@@ -193,9 +179,7 @@ public class DBUtilTest
     /**
      * Test case that NullPointerException is thrown.
      */
-    public void testExecute_NullPointer()
-        throws Exception
-    {
+    public void testExecute_NullPointer() {
         // by specify null to "sql" argument.
         try {
             DBUtil.execute(null);
@@ -207,9 +191,7 @@ public class DBUtilTest
     /**
      * Test case that IllegalArgumentException is thrown.
      */
-    public void testExecute_IllegalArgument()
-        throws Exception
-    {
+    public void testExecute_IllegalArgument() {
         // by specify empty string to "sql" argument.
         try {
             DBUtil.execute("");

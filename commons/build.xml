@@ -11,7 +11,8 @@
 
     <target name="jar">
         <mkdir dir="build/classes" />
-        <javac destdir="build/classes" debug="on" optimize="off" deprecation="off">
+        <javac destdir="build/classes" debug="on" optimize="off" 
+                deprecation="off" includeantruntime="false">
             <src path="src/java" />
             <classpath refid="classpath" />
             <compilerarg value="-Xlint:unchecked" />
@@ -21,6 +22,26 @@
 
     <target name="clean">
         <delete dir="build" />
+    </target>
+
+    <target name="javadoc">
+        <mkdir dir="build" />
+        <javadoc
+            sourcepath="src/java"
+            packagenames="org.sd_network.*"
+            additionalparam="-breakiterator"
+            charset="${src.enc}"
+            encoding="${src.enc}"
+            author="true"
+            version="true"
+            use="true"
+            windowtitle="SD-NETWORK Common classes JavaDoc"
+            doctitle="SD-NETWORK Common classes Documentation"
+            header="&lt;b&gt;SD-NETWORK Common classes JavaDoc&lt;/b&gt;"
+            access="package"
+            classpath="${env.JAVA_HOME}/lib/tools.jar"
+            classpathref="classpath"
+            destdir="build/${ant.project.name}-docs" />
     </target>
 
 </project>

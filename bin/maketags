@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# maketags -- Make tags file.
+#
+# author : Masatoshi Sato
+#
+# $Id$
+if [ -z JAVA_HOME ] ; then
+    echo JAVA_HOME environment is not found.
+    exit 1
+fi
+if [ -z PRJ_HOME ] ; then
+    echo PRJ_HOME environment is not found.
+    exit 1
+fi
+
+#ctags -f $prj_home/tags -R $prj_home/commons/src/java $prj_home/vfs/src/java $prj_home/vfssector/src/java $prj_home/vfssectorif/src/java $prj_home/vfsshell/src/java $JAVA_HOME/src
+ctags -f $HOME/.tags -R $PRJ_HOME/project-masa #$JAVA_HOME/src
+

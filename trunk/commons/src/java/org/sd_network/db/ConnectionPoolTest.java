@@ -78,25 +78,14 @@ public class ConnectionPoolTest
     private static final Logger _log = Logger.getLogger(
         ConnectionPoolTest.class.getName());
 
-    //////////////////////////////////////////////////////////// 
-    // Instance fields.
-
-    private String _name;
-
     ////////////////////////////////////////////////////////////
     // Constructor and Initialization.
-
-    public ConnectionPoolTest(String name)
-        throws Exception
-    {
-        super(name);
-        _name = name;
-    }
 
     public void setUp()
         throws Exception
     {
-        _log.log(Level.FINE, "--- test [" + _name + "]");
+        super.setUp();
+        _log.log(Level.FINE, "--- Run test case [" + getName() + "]");
     }
 
     public void tearDown()
@@ -114,9 +103,7 @@ public class ConnectionPoolTest
     /**
      * 識別子で指定したConnectionPoolインスタンスを取得できる事を確認します。
      */
-    public void testInstanceCheck_Normal()
-        throws Exception
-    {
+    public void testInstanceCheck_Normal() {
         // ID is not specified (=default)
         ConnectionPool poolNoID = ConnectionPool.getInstance();
         assertNotNull(poolNoID);
@@ -163,9 +150,7 @@ public class ConnectionPoolTest
      * 特定の識別子に紐づくConnectionParameterが存在しない場合に
      * IllegalStateExceptionがスローされる事を確認します。
      */
-    public void testInstanceCheck_ConnectionParameterNotFoundError()
-        throws Exception
-    {
+    public void testInstanceCheck_ConnectionParameterNotFoundError() {
         try {
             ConnectionPool.getInstance("test99");
             fail("ConnectionParameter check error.");
@@ -181,9 +166,13 @@ public class ConnectionPoolTest
 
     /**
      * 新規のConnectionが生成され、取得できる事を確認します。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when call Connection#close()
+     *          method.
      */
     public void testEngageCheck_NewConnection()
-        throws Exception
+        throws SQLException
     {
         // ID is not specified (=default)
         ConnectionPool poolNoID = ConnectionPool.getInstance();
@@ -207,9 +196,13 @@ public class ConnectionPoolTest
 
     /**
      * プールされているConnectionを取得できる事を確認します。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when call Connection#close()
+     *          method.
      */
     public void testEngageCheck_ExistsConnection()
-        throws Exception
+        throws SQLException
     {
         // get connection with ID is not specified (=default)
         ConnectionPool poolNoID = ConnectionPool.getInstance();
@@ -224,10 +217,10 @@ public class ConnectionPoolTest
         String conNoID1String = conNoID1.toString();
 
         // release to pool.
-        conNoID1.close(); 
+        conNoID1.close();
         assertEquals(0, poolNoID.getCheckedOutConnections());
         assertEquals(1, poolNoID.getCurrentPoolSize());
-        
+
         // get connection again from pool.
         Connection conNoID2 = poolNoID.engageConnection(0);
         assertNotNull(conNoID2);
@@ -244,16 +237,22 @@ public class ConnectionPoolTest
     /**
      * ConnectionParameter情報が間違っているために新しいConnectionが生成
      * できず、ConnectTimeoutExceptionがスローされる事を確認します。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when call Connection#close()
+     *          method.
      */
     public void testEngageCheck_TimeoutByConnectionCreationError()
-        throws Exception
+        throws SQLException
     {
         ConnectionPool pool = ConnectionPool.getInstance("test2");
         try {
             Connection con1 = pool.engageConnection(1);
             if (con1 != null)
                 con1.close();
-            fail("Creation of connection error.");
+            fail(
+                    "This method is expected that Connection creation error," +
+                    " but it is created normally.");
         } catch (ConnectTimeoutException e) {
             assertEquals(
                     "[test2]: Failed to engage connection.", e.getMessage());
@@ -263,9 +262,13 @@ public class ConnectionPoolTest
     /**
      * 全てのConnectionが使用されているためにConnectTimeoutExceptionが
      * スローされる事を確認します。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when call Connection#close()
+     *          method.
      */
     public void testEngageCheck_TimeoutByAllConnectionIsUsingError()
-        throws Exception
+        throws SQLException
     {
         // Prepare: get connection to max size.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
@@ -284,7 +287,10 @@ public class ConnectionPoolTest
             Connection con = pool.engageConnection(0);
             if (con != null)
                 con.close();
-            fail("Connection pool size check error.");
+            fail(
+                    "This method is expected that occur timed out error" +
+                    " when connection creation bacause of all connection is" +
+                    " checked out, but it is created normally.");
         } catch (ConnectTimeoutException e) {
             assertEquals(
                     "[test1]: Failed to engage connection.", e.getMessage());
@@ -309,9 +315,13 @@ public class ConnectionPoolTest
     /**
      * チェックアウトされたConnectionが正常にプールに返却できる事を
      * 確認します。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when call Connection#close()
+     *          method.
      */
     public void testReleaseCheck_OK()
-        throws Exception
+        throws SQLException
     {
         // Prepare: get a connection from pool.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
@@ -332,9 +342,17 @@ public class ConnectionPoolTest
      * プールされず、チェックアウト数だけカウントします。
      * このテストでは、手動でConnectionを生成し、Poolに強制的に返却処理を
      * 行います。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when call Connection#close()
+     *          method.
+     *
+     * @throws  ClassNotFoundException
+     *          Throws if JDBCDriver is not found when creation instance of
+     *          JDBCDriver.
      */
     public void testReleaseCheck_ClosedConnection()
-        throws Exception
+        throws SQLException, ClassNotFoundException
     {
         // Prepare: Get connection for count up checked out connection.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
@@ -375,9 +393,7 @@ public class ConnectionPoolTest
      * Nullオブジェクトをプールに返却しようとした時にNullPointerExceptionが
      * スローされる事を確認します。
      */
-    public void testReleaseCheck_NullError()
-        throws Exception
-    {
+    public void testReleaseCheck_NullError() {
         ConnectionPool pool = ConnectionPool.getInstance("test1");
         try {
             pool.releaseConnection(null);
@@ -392,13 +408,11 @@ public class ConnectionPoolTest
      * {@link ConnectionProxy} だった場合にIllegalArgumentExceptionがスロー
      * される事を確認します。
      */
-    public void testReleaseCheck_SpecifiedConnectionProxyError()
-        throws Exception
-    {
+    public void testReleaseCheck_SpecifiedConnectionProxyError() {
         ConnectionPool pool = ConnectionPool.getInstance("test1");
         Connection con1 = pool.engageConnection(1);
         assertEquals(1, pool.getCheckedOutConnections());
-        
+
         try {
             pool.releaseConnection(con1);
             fail("Connection instance check error.");
@@ -411,16 +425,27 @@ public class ConnectionPoolTest
             assertEquals(1, pool.getCheckedOutConnections());
         }
         if (con1 != null)
-            con1.close();
+            try {
+                con1.close();
+            } catch (SQLException e) {
+                // this exception is ignored.
+            }
     }
 
     /**
      * チェックアウトされたConnectionが存在しないプールに対して、接続済みの
      * Connectionを返却しようとした時にConnectionPoolExceptionが発生する事を
      * 確認します。
+     *
+     * @throws  ClassNotFoundException
+     *          Throws if JDBCDriver class not found when load JDBCDriver class.
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when create connection or
+     *          created connection is closed.
      */
     public void testReleaseCheck_InitialPoolError()
-        throws Exception
+        throws ClassNotFoundException, SQLException
     {
         ConnectionPool pool = ConnectionPool.getInstance("test1");
         ConnectionParameter parameter = pool.getConnectionParameter();
@@ -447,9 +472,12 @@ public class ConnectionPoolTest
      * {@link ConnectionPool#clear()} メソッドが正常に動作する事を確認します。
      * clear()メソッドが実行されると、プールに保持されているConnectionは
      * 全て切断され、全てのプール情報はクリアされます。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when close connection.
      */
     public void testClearCheck_OK()
-        throws Exception
+        throws SQLException
     {
         // get ConnectionPool instance.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
@@ -465,7 +493,7 @@ public class ConnectionPoolTest
 
         //////////////////////////////////////////////////////////// 
         // Tests call #clear() method after release all connection.
-        
+
         // Engage all connection.
         Connection[] cons = new Connection[ConnectionPool.MAX_POOL_SIZE];
         for (int idx = 0; idx < cons.length; idx++) {
@@ -498,9 +526,12 @@ public class ConnectionPoolTest
      * {@link ConnectionPool#clear()} メソッド呼び出し時にチェックアウト
      * されているConnectionが存在する場合に {@link ConnectionPoolException} 
      * が発生する事を確認します。
+     *
+     * @throws  SQLException
+     *          Throws if database error occurred when close connection.
      */
     public void testClearCheck_ExistCheckedOutConnections()
-        throws Exception
+        throws SQLException
     {
         // Get ConnectionPool instance.
         ConnectionPool pool = ConnectionPool.getInstance("test1");
@@ -525,11 +556,7 @@ public class ConnectionPoolTest
                     "Number of checked out connection is [1].",
                     e.getMessage());
         } finally {
-            try {
-                con.close();
-            } catch (ConnectionPoolException e) {
-                // nothing to do.
-            }
+            con.close();
         }
     }
 }

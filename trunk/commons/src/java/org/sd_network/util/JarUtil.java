@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
@@ -50,11 +51,8 @@ public class JarUtil
     //////////////////////////////////////////////////////////// 
     // Constant values.
 
-    /** Maximum of targets that can pack to jar file. */
-    private static final long _MAX_TARGETS = 100;
-
     /** A Comparator for alphabetical sort jar file. */
-    public static final Comparator <String> _SORT_BY_PATH =
+    public static final Comparator <String> _SORT_BY_ALPHA_IGNORE_CASE =
         new Comparator <String> () {
             public int compare(String o1, String o2) {
                 return o1.compareToIgnoreCase(o2);
@@ -65,8 +63,74 @@ public class JarUtil
     // Public methods.
 
     /**
-     * Return List collection of JAR file pathes that is defined by
-     * system property "java.class.path".
+     * Pack each files or directories specified by <tt>targetRoots</tt>
+     * parameter to JAR file. 
+     *
+     * <p> It is expected that <tt>targetRoots</tt> is included related path
+     * from current working directory. For example, If <tt>targetRoots</tt> is
+     * included path "target.txt" and current working directory is "/foo",
+     * this method suppose that absolute path of it is "/foo/target.txt". 
+     * When this situation, this method pack /foo/target.txt file to Jar file 
+     * as JarEntry named "target.txt" (related path from current working 
+     * directory).
+     *
+     * <p> If <tt>targetRoots</tt> parameter is included directory, search
+     * file or directory to bottom layer recursively.
+     * Jar file is created as temporary file to temporary directory, and 
+     * return object of it, thus if created jar file will store parmanentry,
+     * move it from temporary directory to user directory used by 
+     * java.io.File#renameTo(String) method.
+     *
+     * <p> If it is specified file or directory in <tt>targetRoots</tt> 
+     * parameter is not exists, it is ignored. 
+     *
+     * @param targetRoots   Array of path name of file or directory that 
+     *                      is packed to JAR file.
+     *
+     * @return  A File object of JAR file created as temporary file, you should
+     *          rename to appropriate name.
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if <tt>targetRoots</tt> parameter is null or elements 
+     *          not includes in it.
+     *
+     * @throws  FileNotFoundException
+     *          Throws if file or directory that contains <tt>targetRoots</tt>
+     *          parameter did not exists.
+     *
+     * @throws  IOException
+     *          Throws if file I/O error occurred at create jar file (add 
+     *          JarEntry or read target file/directory). 
+     */
+    public static File pack(String[] targetRoots)
+        throws IllegalArgumentException, FileNotFoundException, IOException
+    {
+        // Check parameters.
+        if (targetRoots == null)
+            throw new IllegalArgumentException("targetRoots is null.");
+        if (targetRoots.length == 0)
+            throw new IllegalArgumentException("targetRoots is empty.");
+
+        // Create jar file as temporary file to temporary directory.
+        File temp = File.createTempFile("temp", ".jar");
+        JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp));
+
+        // Add all files and directories to jar file as JarEntry object.
+        for (int idx = 0; idx < targetRoots.length; idx++)
+            addEntries(jos, null, new File(targetRoots[idx]));
+
+        jos.close();
+        return temp;
+    }
+
+    /**
+     * Return unmodified List collection contains JAR file pathes that is 
+     * defined by system property "java.class.path".
+     *
+     * <p> jar file pathes is sorted by alphabetical order. 
+     * (not case-sensitive)
+     *
+     * @return  jar file names as list collection.
      */
     public static List <String> getJarFiles() {
         String path = System.getProperty("java.class.path");
@@ -76,70 +140,72 @@ public class JarUtil
         while (st.hasMoreTokens()) {
             pathList.add(st.nextToken());
         }
-        Collections.sort(pathList, _SORT_BY_PATH);
-        return pathList;
+        Collections.sort(pathList, _SORT_BY_ALPHA_IGNORE_CASE);
+        return Collections.unmodifiableList(pathList);
     }
 
     /**
-     * Return JAR file name included in class path.
-     * If speicified JAR file name is not found, return null.
+     * Return list collection of class name (FQCN) of classes included in 
+     * the JAR file specified by "jarFilePath" parameter.
      *
-     * <p> In "specJar" argument, you can specify completely jar file. And 
-     * also you can specify only prefix of jar file name. However,
-     * in this case, you receive jar file name that get first.
-     * For example, when class path include "test.jar", "total.jar" and
-     * "tiger.jar", and if specify only "t" to "specJar" argument,
-     * you can get "test.jar".
+     * <P> In a JAR file, there is possibility included in various JarEntry
+     * other than class file. This method ignore the file as below.
+     * <ul>
+     *  <li> Name of JarEntry without ".class" postfix string.
+     *  <li> JarEntry as a directory.
+     * </ul>
      *
-     * @parm specJar    completely jar file name or prefix of it.
-     */
-    public static String getJarFileMatchTo(String specJar) {
-        List <String> jarList = getJarFiles();
-        Iterator <String> jars = jarList.iterator();
-        while (jars.hasNext()) {
-            String jarFile = jars.next();
-            if (jarFile.indexOf(specJar) != -1)
-                return jarFile;
-        }
-        return null;
-    }
-
-    /**
-     * Generate each Class object of classes included in the JAR file
-     * specified in "jarFile", return it as a List collection.
+     * @param	jarFilePath Path of JAR file.
      *
-     * <P> In a JAR file, There is possibility JAR file is included in
-     * various file other than JAR file. If processed other than class file,
-     * occured exceptions, but in this method, ignore that exception as
-     * processed not class file.
-     *
-     * @param	jarFile Path JAR file.
-     *
-     * @return	List collection of Class objects.
+     * @return	List collection of Java class name (FQCN).
      *
      * @throws	FileNotFoundException
-     *          Throw if specified JAR file was not found.
-     * @throws	IllegaStateException
-     *          Throw if read error occured.
+     *          Throws if specified JAR file was not found.
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if <tt>jarFilePath</tt> is empty or is not represent
+     *          to regular file.
+     *
+     * @throws	IOException
+     *          Throws if read error occured when access to JAR file.
      */
-    public static List <Class <?>> getClasses(String jarFile)
-        throws FileNotFoundException
+    public static List <String> getClassNameList(String jarFilePath)
+        throws FileNotFoundException, IllegalArgumentException,
+               IOException
     {
-        ClassLoader loader = JarUtil.class.getClassLoader();
-        List <Class <?>> classList = new ArrayList <Class <?>> ();
-        try {
-            JarInputStream jarInS =
-        	new JarInputStream(new FileInputStream(jarFile));
+        // check parameters.
+        if (StringUtil.isEmpty(jarFilePath, true))
+            throw new IllegalArgumentException("jarFilePath is empty.");
+        File jarFile = new File(jarFilePath);
+        if (!jarFile.exists())
+            throw new FileNotFoundException(
+                    "jarFilePath [" + jarFilePath + "] is not found.");
+        if (!jarFile.isFile())
+            throw new IllegalArgumentException(
+                    "jarFilePath [" + jarFilePath + "] is not regular file.");
 
-            JarEntry entry = jarInS.getNextJarEntry();
-            while ((entry = jarInS.getNextJarEntry()) != null) {
-                if (entry.isDirectory())
+        List <String> classList = new ArrayList <String> ();
+        JarInputStream jis = null;
+        try {
+            jis = new JarInputStream(new FileInputStream(jarFile));
+
+            JarEntry entry = jis.getNextJarEntry();
+            while ((entry = jis.getNextJarEntry()) != null) {
+                if (entry.isDirectory()) {
+                    _log.log(Level.FINE,
+                            "Entry [" + entry.getName() + "] is directory," +
+                            " ignore it.");
                     continue;	// ignore directory.
+                }
 
                 String classFile = entry.getName();
                 int classExtIdx = classFile.lastIndexOf(".class");
-                if (classExtIdx < 0)
+                if (classExtIdx < 0) {
+                    _log.log(Level.FINE,
+                            "Entry [" + entry.getName() + "] is not class," +
+                            " ignore it.");
                     continue;	// ignore other than class.
+                }
 
                 classFile = classFile.substring(0, classExtIdx);
 
@@ -148,154 +214,187 @@ public class JarUtil
                 while (st.hasMoreTokens()) {
                     className += (String) st.nextToken() + ".";
                 }
-                className = className.substring(0, className.length() - 1);
-
+                classList.add(className.substring(0, className.length() - 1));
+            }
+            return Collections.unmodifiableList(classList);
+        } finally {
+            if (jis != null) {
                 try {
-                    Class <?> classObj =
-                        Class.forName(className, false, loader);
-                    classList.add(classObj);
-                } catch (Throwable e) {
-                    // ignore as processed other than class.
+                    jis.close();
+                } catch (IOException e) {
+                    // ignore this because of the stream for read and 
+                    // is expected no effect to after processes.
+                    // Just output log for some problems was occurred.
+                    _log.log(Level.INFO, 
+                            "IOException occurred when call" +
+                            " JarInputStream#close() method.", e);
                 }
             }
-        } catch (IOException e) {
-            throw new IllegalStateException("I/O error when read jar. : " +
-                e.getMessage());
         }
-        return classList;
-    }
 
-    /**
-     * Create JAR file.
-     *
-     * <P> Register each files or directories specified by <tt>targets</tt>
-     * to JAR file. If <tt>targets</tt> is included directory, search
-     * file/directory to bottom layer recursively, register all
-     * files/directories.
-     *
-     * @param targets   A Path name of file or directory register to JAR file.
-     *
-     * @return  A File object of JAR file. Create as temporary file, you should
-     *          rename to appropriate name.
-     *
-     * @throws  IOException
-     *          Throw if file I/O failed.
-     */
-    public static File pack(String[] targets)
-        throws IOException
-    {
-        if (targets == null)
-            throw new IllegalArgumentException("targets is null.");
-        if (targets.length > _MAX_TARGETS)
-            throw new IllegalArgumentException(
-                    "number of targets over than MAX.");
-
-        File temp = File.createTempFile("temp", ".jar");
-        JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp));
-        for (int idx = 0; idx < targets.length; idx++) {
-            File root = new File(targets[idx]);
-            if (!root.exists()) {
-                _log.log(Level.INFO,
-                        "target[" + targets[idx] + "] was not exists.");
-                continue;
-            }
-            addEntries(jos, root);
-            jos.close();
-        }
-        return temp;
     }
 
     //////////////////////////////////////////////////////////// 
     // Private methods.
 
     /**
-     * Register file or directory specified as <tt>target</tt>
-     * to JAR file as JarEntry.
+     * Add file or directory specified to <tt>target</tt> parameter to 
+     * JAR file as JarEntry.
      *
+     * <p> <tt>parentDir</tt> parameter is parent directory of <tt>target</tt>
+     * file or directory. This is used to create related path of <tt>target</tt>
+     * file or directory from parent directory for name of JarEntry.
+     * If <tt>parentDir<tt> set <tt>null</tt>, parentDir is get from
+     * <tt>target</tt> automatically.
+     *
+     * <p> This method programmed for re-entrant. If <tt>target</tt> parameter
+     * set directory, this method call ownself with <tt>parentDir</tt> parameter
+     * set to <tt>target</tt> as parent directory for process sub-directory
+     * recursively.
+     * 
      * @param jos       Output stream of JAR file.
-     * @param target    The File object of file or directory.
+     * @param parentDir Parent directory of <tt>target</tt>.
+     * @param target    A File object of target file or directory.
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if parameter <tt>jos<tt> or <tt>targetFile</tt> 
+     *          is set null.
+     *
+     * @throws  FileNotFoundException
+     *          Throws if file or directory that is specified to 
+     *          <tt>parentDir</tt> or <tt>targetFile</tt> does not exists.
      *
      * @throws  IOException
      *          Throw if file IO failed.
      */
-    private static void addEntries(JarOutputStream jos, File target)
-        throws IOException
+    private static void addEntries(JarOutputStream jos, File parentDir, 
+            File targetFile)
+        throws IllegalArgumentException, FileNotFoundException, IOException
     {
+        // Check parameters.
         if (jos == null)
             throw new IllegalArgumentException("jos is null.");
-        if (target == null)
-            throw new IllegalArgumentException("target is null.");
+        if (targetFile == null)
+            throw new IllegalArgumentException("targetFile is null.");
+        if (!targetFile.exists())
+            throw new FileNotFoundException(
+                    "targetFile [" + targetFile.getAbsolutePath() + "]" +
+                    " does not exists.");
 
-        if (target.isFile()) {
-            BufferedInputStream bis = 
-                    new BufferedInputStream(new FileInputStream(target));
-            addFileEntry(jos, bis, target.getPath());
-            bis.close();
+        if (parentDir == null)
+            parentDir = targetFile.getParentFile();
+        if (!parentDir.exists())
+            throw new FileNotFoundException(
+                    "parentDir [" + parentDir.getAbsolutePath() + "]" +
+                    " does not exists.");
+
+        // Create jar entry name.
+        String targetAbsolutePath =
+            toAvailableJarPath(targetFile.getAbsolutePath());
+        String parentAbsolutePath =
+            toAvailableJarPath(parentDir.getAbsolutePath());
+        String entryName = targetAbsolutePath.substring(
+                parentAbsolutePath.length() + 1);
+
+        if (targetFile.isFile()) {
+            addFileEntry(jos, targetFile, entryName);
         } else {
-            addDirectoryEntry(jos, target.getPath());
-            String path = target.getPath();
-            String[] subTargets = target.list();
-            for (int idx = 0; idx < subTargets.length; idx++) {
-                addEntries(jos, new File(path + "/" + subTargets[idx]));
+            addDirectoryEntry(jos, entryName);
+            File[] subTargetFiles = targetFile.listFiles();
+            for (int idx = 0; idx < subTargetFiles.length; idx++) {
+                addEntries(jos, parentDir, subTargetFiles[idx]);
             }
         }
     }
 
     /**
      * Add file entry to JAR file.
+     *
+     * @param jos           Output stream of JAR file.
+     * @param targetFile    A file object of target file.
+     * @param entryName     Name of JarEntry.
+     *
+     * @throws  IOException
+     *          Thorws if create JarEntry or read data from target file failed.
      */
-    private static void addFileEntry(JarOutputStream jos, InputStream is,
+    private static void addFileEntry(JarOutputStream jos, File targetFile,
             String entryName)
         throws IOException
     {
         if (jos == null)
-            throw new IllegalArgumentException("OutputStream is null.");
-        if (is == null)
-            throw new IllegalArgumentException("InputStream is null.");
-        if (entryName == null || entryName.trim().length() == 0)
+            throw new IllegalArgumentException("jos is null.");
+        if (targetFile == null)
+            throw new IllegalArgumentException("targetFile is null.");
+        if (StringUtil.isEmpty(entryName, true))
             throw new IllegalArgumentException("entryName is empty.");
 
-        String availablePath = toAvailableJarPath(entryName);
-        if (availablePath.length() == 0)
-            return;
-        jos.putNextEntry(new JarEntry(toAvailableJarPath(entryName)));
+        _log.log(Level.FINE, "entryName as file = [" + entryName + "]");
+
+        BufferedInputStream bis =
+            new BufferedInputStream(new FileInputStream(targetFile));
+        jos.putNextEntry(new JarEntry(entryName));
 
         byte buf[] = new byte[1024];
         int count;
-        while ((count = is.read(buf, 0, buf.length)) != -1)
+        while ((count = bis.read(buf, 0, buf.length)) != -1)
             jos.write(buf, 0, count);
 
         jos.closeEntry();
+        bis.close();
     }
 
     /**
      * Add directory entry to JAR file.
+     *
+     * @param jos           Output stream of JAR file.
+     * @param entryName     Name of JarEntry.
+     *
+     * @throws  IOException
+     *          Throws if create JarEntry failed.
      */
-    private static void addDirectoryEntry(JarOutputStream jos, String dirPath)
+    private static void addDirectoryEntry(JarOutputStream jos, String entryName)
         throws IOException
     {
         if (jos == null)
             throw new IllegalArgumentException("jos is null.");
-        if (dirPath == null || dirPath.length() == 0)
-            throw new IllegalArgumentException("dirPath is empty.");
-        
-        String availablePath = toAvailableJarPath(dirPath);
-        if (availablePath.length() == 0)
-            return;
-        jos.putNextEntry(new JarEntry(availablePath + "/"));
+        if (StringUtil.isEmpty(entryName, true))
+            throw new IllegalArgumentException("entryName is empty.");
+
+        _log.log(Level.FINE, "entryName as directory = [" + entryName + "/]");
+
+        jos.putNextEntry(new JarEntry(entryName + "/"));
         jos.closeEntry();
     }
 
     /**
-     * Exchange from <tt>path</tt> to available path at JAR file.
+     * Exchange <tt>path</tt> to available path at JAR file.
+     *
+     * <p> Java is enabled both path separator Windows "\" or Unix "/", and
+     * is enabled mixed both path separator that is included to path string.
+     * This method replace Windows path separator "\" to Unix of it because of
+     * for program simplification. (It makes no difference, but I like Unix,
+     * that all.)
+     *
+     * @param path  file path that is exchanged to available path.
+     *
+     * @return  exchanged path. If <tt>path</tt> parameter is included only
+     *          current directory "." or "./", return empty string (because of
+     *          no include current directory to Jar file).
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if <tt>path</tt> is null or empty string.
      */
-    private static String toAvailableJarPath(String path) {
-        if (path == null)
-            throw new IllegalArgumentException("path is null.");
+    private static String toAvailableJarPath(String path)
+        throws IllegalArgumentException
+    {
+        if (StringUtil.isEmpty(path, true))
+            throw new IllegalArgumentException("path is empty.");
 
         // Get out current directory.
         if (path.equals("."))
             return "";
+
+        // take out prefix path that is represented current directory.
         if (path.startsWith(".\\") || path.startsWith("./")) {
             path = path.substring(2);
             if (path.length() == 0)

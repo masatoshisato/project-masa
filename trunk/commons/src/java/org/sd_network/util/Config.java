@@ -16,6 +16,7 @@
 package org.sd_network.util;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -27,7 +28,17 @@ import java.util.logging.Logger;
 import org.apache.commons.cli.CommandLine;
 
 /**
- * A Configuration of an application.
+ * This class represent configuration of an application.
+ *
+ * <p> This class is applied Singleton pattern, you can not create instance
+ * twice in an application. How to use this class for generally is, 
+ * <ul>
+ *  <li> call {@link #load(String)} method in initialization of an 
+ *       application to load properties from property file and create 
+ *       instance. (Only once)
+ *  <li> call {@link #getInstance()} method from anywhere after call
+ *       {@link #load(String)} method if necessary.
+ * </ul>
  *
  * <p> $Id$
  *
@@ -47,13 +58,50 @@ public class Config
     private static Config _instance = null;
 
     //////////////////////////////////////////////////////////// 
+    // Initializations.
+
+    /**
+     * Default instructor for Config class.
+     *
+     * <p> NOTE: This method restrict to private access because of this class
+     * have applied singleton pattern. Thus other class can not create 
+     * instance of this class.
+     */
+    private Config() {
+        super();
+    }
+
+    /**
+     * Instructor with parameters for Config class.
+     *
+     * <p> NOTE: This method restrict to private access because of this class
+     * have applied singleton pattern. Thus other class can not create 
+     * instance of this class.
+     */
+    private Config(Properties defaults) {
+        super(defaults);
+    }
+
+    //////////////////////////////////////////////////////////// 
     // Public methods.
 
     /**
      * Return the instance of this class.
-     * You should be call init method before call this method.
+     * The instance is included properties that is loaded from property file.
+     *
+     * <p> Before call this method, you must be call {@link #load(String)} 
+     * method that is load properties from property file which is specified by
+     * parameter.
+     *
+     * @return  Instance of this class.
+     *
+     * @throws  IllegalStateException
+     *          Throws this exception when call this method before call 
+     *          {@link #load(String)} method.
      */
-    public static final Config getInstance() {
+    public static final Config getInstance()
+        throws IllegalStateException
+    {
         if (_instance == null)
             throw new IllegalStateException(
                     "You must call load(propertyFile) method " +
@@ -62,19 +110,38 @@ public class Config
     }
 
     /**
-     * Load property from the specified file path by <tt>propertyFilePath</tt>.
+     * Load properties from file which is specified file path by 
+     * <tt>propertyFilePath</tt> parameter, and create instance of this class.
      *
      * @param propertyFilePath  Path to property file that is defined various
      *                          properties.
      *
-     * @return  Instance of Config it was included new properties.
+     * @return  Config instance included new properties.
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if specified argument <tt>propertyFilePath</tt> is null
+     *          or zero length string.
+     *
+     * @throws  IOException
+     *          Throws if access error occured when load properties from 
+     *          property file specified by argument <tt>propertyFilePath</tt>.
+     *          Or is not file.
      */
-    public static final Config load(String propertyFilePath) {
-        if (propertyFilePath == null)
-            throw new NullPointerException("propertyFilePath");
+    public static final Config load(String propertyFilePath)
+        throws IllegalArgumentException, IOException
+    {
+        // Check argument.
+        if (StringUtil.isEmpty(propertyFilePath, true))
+            throw new IllegalArgumentException("propertyFilePath is empty.");
+        if (!(new File(propertyFilePath).isFile()))
+            throw new IOException(
+                    "propertyFilePath [" + propertyFilePath + "] is not file.");
 
+        // Create instance if still it.
         if (_instance == null)
             _instance = new Config();
+
+        // Load properties.
         _instance.loadProperty(propertyFilePath);
         _log.info("Property loaded from [" + propertyFilePath + "]");
         for (Object name: Collections.list(_instance.propertyNames())) {
@@ -85,23 +152,53 @@ public class Config
     }
 
     //////////////////////////////////////////////////////////// 
+    // Package methods.
+
+    /**
+     * Null reset the instance.
+     *
+     * <p><b>This is for UnitTest only.</b>
+     * This method for UnitTest only. When execute Main method of TestRunner
+     * class, set system property "UnitTest" = "TRUE". If call this method
+     * when not executed Main method of TestRunner, throws 
+     * {@link java.lang.UnsupportedOperationException}.
+     *
+     * @throws  UnsupportedOperationException
+     *          Throws if not set system property "UnitTest".
+     */
+    static final void reset()
+        throws UnsupportedOperationException
+    {
+        if (!System.getProperty("UnitTest").equals("TRUE"))
+            throw new UnsupportedOperationException(
+                    "This method for UnitTest only!");
+
+        _instance = null;
+    }
+
+    //////////////////////////////////////////////////////////// 
     // Private methods.
 
     /**
      * Load property from specified file.
+     *
+     * @param filePath  file path of property file.
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if argument specified by <tt>filePath</tt> is null or 
+     *          zero length string.
+     *
+     * @throws  IOException
+     *          Throws if access error occured when load property from
+     *          file specified argument <tt>filePath</tt>.
      */
-    private final void loadProperty(String filePath) {
-        if (filePath == null)
-            throw new NullPointerException("filePath");
+    private final void loadProperty(String filePath)
+        throws IllegalArgumentException, IOException
+    {
+        if (StringUtil.isEmpty(filePath, true))
+            throw new IllegalArgumentException("filePath is empty.");
 
-        try {
-            InputStream in =
-                new BufferedInputStream(new FileInputStream(filePath));
-            load(in);
-        } catch (IOException e) {
-            throw new IllegalStateException(
-                    "File[" + filePath + "] is not accessible. " +
-                    e.getMessage());
-        }
+        InputStream in = new BufferedInputStream(new FileInputStream(filePath));
+        load(in);
     }
 }

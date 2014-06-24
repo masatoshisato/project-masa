@@ -32,6 +32,7 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.UUID;
@@ -251,192 +252,13 @@ public class ConnectionProxy
     }
 
     //////////////////////////////////////////////////////////// 
-    // Proxy methods for JDBC ver 4.0
-
-    public Struct createStruct(String typeName, Object[] attributes)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.createStruct(typeName, attributes);
-    }
-
-    public Array createArrayOf(String typeName, Object[] elements)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.createArrayOf(typeName, elements);
-    }
-
-    public Properties getClientInfo()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getClientInfo();
-    }
-
-    public String getClientInfo(String name)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getClientInfo(name);
-    }
-
-    public void setClientInfo(Properties properties)
-        throws SQLClientInfoException
-    {
-        checkClosed();
-        _con.setClientInfo(properties);
-    }
-
-    public void setClientInfo(String name, String value)
-        throws SQLClientInfoException
-    {
-        checkClosed();
-        _con.setClientInfo(name, value);
-    }
-
-    public boolean isValid(int timeout)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.isValid(timeout);
-    }
-
-    public SQLXML createSQLXML()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.createSQLXML();
-    }
-
-    public NClob createNClob()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.createNClob();
-    }
-
-    public Blob createBlob()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.createBlob();
-    }
-
-    public Clob createClob()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.createClob();
-    }
-
-    /////////////////////////////////////////////////////////////////////
-    // Proxy methods for java.sql.Connection class.
-
-    public void clearWarnings()
-        throws SQLException
-    {
-        checkClosed();
-        _con.clearWarnings();
-    }
-
-    public void commit()
-        throws SQLException
-    {
-        checkClosed();
-        _con.commit();
-    }
-
-    public Statement createStatement()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.createStatement();
-    }
+    // Proxy methods for java.sql.Connection class since 1.2
 
     public Statement createStatement(int rsType, int rsConcurrency)
         throws SQLException
     {
         checkClosed();
         return _con.createStatement(rsType, rsConcurrency);
-    }
-
-    public boolean getAutoCommit()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getAutoCommit();
-    }
-
-    public String getCatalog()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getCatalog();
-    }
-
-    public DatabaseMetaData getMetaData()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getMetaData();
-    }
-
-    public int getTransactionIsolation()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getTransactionIsolation();
-    }
-
-    public Map<String, Class<?>> getTypeMap()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getTypeMap();
-    }
-
-    public SQLWarning getWarnings()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.getWarnings();
-    }
-
-    public boolean isReadOnly()
-        throws SQLException
-    {
-        checkClosed();
-        return _con.isReadOnly();
-    }
-
-    public String nativeSQL(String sql)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.nativeSQL(sql);
-    }
-
-    public CallableStatement prepareCall(String sql)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.prepareCall(sql);
-    }
-
-    public CallableStatement prepareCall(String sql, int rsType,
-        int rsConcurrency)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.prepareCall(sql, rsType, rsConcurrency);
-    }
-
-    public PreparedStatement prepareStatement(String sql)
-        throws SQLException
-    {
-        checkClosed();
-        return _con.prepareStatement(sql);
     }
 
     public PreparedStatement prepareStatement(String sql, int rsType,
@@ -447,39 +269,19 @@ public class ConnectionProxy
         return _con.prepareStatement(sql, rsType, rsConcurrency);
     }
 
-    public void rollback()
+    public CallableStatement prepareCall(String sql, int rsType,
+        int rsConcurrency)
         throws SQLException
     {
         checkClosed();
-        _con.rollback();
+        return _con.prepareCall(sql, rsType, rsConcurrency);
     }
 
-    public void setAutoCommit(boolean autoCommit)
+    public Map<String, Class<?>> getTypeMap()
         throws SQLException
     {
         checkClosed();
-        _con.setAutoCommit(autoCommit);
-    }
-
-    public void setCatalog(String catalog)
-        throws SQLException
-    {
-        checkClosed();
-        _con.setCatalog(catalog);
-    }
-
-    public void setReadOnly(boolean readOnly)
-        throws SQLException
-    {
-        checkClosed();
-        _con.setReadOnly(readOnly);
-    }
-
-    public void setTransactionIsolation(int level)
-        throws SQLException
-    {
-        checkClosed();
-        _con.setTransactionIsolation(level);
+        return _con.getTypeMap();
     }
 
     public void setTypeMap(Map<String, Class<?>> map)
@@ -488,6 +290,9 @@ public class ConnectionProxy
         checkClosed();
         _con.setTypeMap(map);
     }
+
+    //////////////////////////////////////////////////////////// 
+    // Proxy methods for java.sql.Connection class since 1.4
 
     public void setHoldability(int holdability)
         throws SQLException
@@ -577,5 +382,255 @@ public class ConnectionProxy
     {
         checkClosed();
         return _con.prepareStatement(sql, columnNames);
+    }
+
+    ////////////////////////////////////////////////////////////////////// 
+    // Proxy methods for java.sql.Connection class since 1.6
+
+    public Clob createClob()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.createClob();
+    }
+
+    public Blob createBlob()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.createBlob();
+    }
+
+    public NClob createNClob()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.createNClob();
+    }
+
+    public SQLXML createSQLXML()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.createSQLXML();
+    }
+
+    public boolean isValid(int timeout)
+        throws SQLException
+    {
+        checkClosed();
+        return _con.isValid(timeout);
+    }
+
+    public void setClientInfo(Properties properties)
+        throws SQLClientInfoException
+    {
+        checkClosed();
+        _con.setClientInfo(properties);
+    }
+
+    public void setClientInfo(String name, String value)
+        throws SQLClientInfoException
+    {
+        checkClosed();
+        _con.setClientInfo(name, value);
+    }
+
+    public Properties getClientInfo()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getClientInfo();
+    }
+
+    public String getClientInfo(String name)
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getClientInfo(name);
+    }
+
+    public Array createArrayOf(String typeName, Object[] elements)
+        throws SQLException
+    {
+        checkClosed();
+        return _con.createArrayOf(typeName, elements);
+    }
+
+    public Struct createStruct(String typeName, Object[] attributes)
+        throws SQLException
+    {
+        checkClosed();
+        return _con.createStruct(typeName, attributes);
+    }
+
+    //////////////////////////////////////////////////////////// 
+    // Proxy methods for java.sql.Connection class since 1.7
+
+    public void setSchema(String schema)
+        throws SQLException
+    {
+        checkClosed();
+        _con.setSchema(schema);
+    }
+
+    public String getSchema()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getSchema();
+    }
+
+    /**
+     * XXX : The operation of this method must be considered more for
+     * ConnectionPool function.
+     * This method is closed loosely by <tt>executor</tt>. but close methos
+     * have to controlling by ConnectionPool function.
+     */
+    public void abort(Executor executor)
+        throws SQLException
+    {
+        checkClosed();
+        _con.abort(executor);
+    }
+
+    /**
+     * XXX : The operation of this method must be considered more for
+     * ConnectionPool function.
+     */
+    public void setNetworkTimeout(Executor executor, int milliseconds)
+        throws SQLException
+    {
+        checkClosed();
+        _con.setNetworkTimeout(executor, milliseconds);
+    }
+
+    public int getNetworkTimeout()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getNetworkTimeout();
+    }
+
+    /////////////////////////////////////////////////////////////////////
+    // Proxy methods for java.sql.Connection class.
+
+    public void clearWarnings()
+        throws SQLException
+    {
+        checkClosed();
+        _con.clearWarnings();
+    }
+
+    public void commit()
+        throws SQLException
+    {
+        checkClosed();
+        _con.commit();
+    }
+
+    public Statement createStatement()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.createStatement();
+    }
+
+    public boolean getAutoCommit()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getAutoCommit();
+    }
+
+    public String getCatalog()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getCatalog();
+    }
+
+    public DatabaseMetaData getMetaData()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getMetaData();
+    }
+
+    public int getTransactionIsolation()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getTransactionIsolation();
+    }
+
+    public SQLWarning getWarnings()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.getWarnings();
+    }
+
+    public boolean isReadOnly()
+        throws SQLException
+    {
+        checkClosed();
+        return _con.isReadOnly();
+    }
+
+    public String nativeSQL(String sql)
+        throws SQLException
+    {
+        checkClosed();
+        return _con.nativeSQL(sql);
+    }
+
+    public CallableStatement prepareCall(String sql)
+        throws SQLException
+    {
+        checkClosed();
+        return _con.prepareCall(sql);
+    }
+
+    public PreparedStatement prepareStatement(String sql)
+        throws SQLException
+    {
+        checkClosed();
+        return _con.prepareStatement(sql);
+    }
+
+    public void rollback()
+        throws SQLException
+    {
+        checkClosed();
+        _con.rollback();
+    }
+
+    public void setAutoCommit(boolean autoCommit)
+        throws SQLException
+    {
+        checkClosed();
+        _con.setAutoCommit(autoCommit);
+    }
+
+    public void setCatalog(String catalog)
+        throws SQLException
+    {
+        checkClosed();
+        _con.setCatalog(catalog);
+    }
+
+    public void setReadOnly(boolean readOnly)
+        throws SQLException
+    {
+        checkClosed();
+        _con.setReadOnly(readOnly);
+    }
+
+    public void setTransactionIsolation(int level)
+        throws SQLException
+    {
+        checkClosed();
+        _con.setTransactionIsolation(level);
     }
 }

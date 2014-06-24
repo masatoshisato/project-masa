@@ -201,7 +201,7 @@ public class ConnectionPool
      * </ul>
      *
      * もし、タイムアウト時間までに、Connectionの生成もしくはConnectionの
-     * 返却がなかった場合、{@link org.sd_network.db.ConnectTimeoutExcepiton}
+     * 返却がなかった場合、{@link org.sd_network.db.ConnectTimeoutException}
      * をスローします。
      *
      * <p> <strong>このメソッドは同期化されています。</strong>
@@ -451,6 +451,8 @@ public class ConnectionPool
 
     /**
      * このインスタンスの識別子を返します。
+     *
+     * @return  ID of this instance.
      */
     String getID() {
         return _ID;
@@ -458,6 +460,8 @@ public class ConnectionPool
 
     /**
      * このインスタンスのデータベース接続情報を返します。
+     *
+     * @return  Instance of {@link ConnectionParameter} class.
      */
     ConnectionParameter getConnectionParameter() {
         return _parameter;
@@ -465,6 +469,8 @@ public class ConnectionPool
 
     /**
      * チェックアウトされているConnection数を返します。
+     *
+     * @return  Numbrer of chekced out connections.
      */
     synchronized int getCheckedOutConnections() {
         return _checkedOutConnections;
@@ -472,6 +478,8 @@ public class ConnectionPool
 
     /**
      * 現在保持されているConnection数を返します。
+     *
+     * @return  Number of pooled connections.
      */
     int getCurrentPoolSize() {
         return _connections.size();

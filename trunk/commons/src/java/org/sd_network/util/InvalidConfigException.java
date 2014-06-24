@@ -15,11 +15,9 @@
  */
 package org.sd_network.util;
 
-import java.sql.SQLException;
-
 /**
- * 環境設定およびプロパティ情報の設定エラーが発生した場合にスローする
- * 実行時例外です。
+ * This class represent runtime exception that is thrown if error occurred
+ * when configure setting.
  *
  * <p> $Id$
  *
@@ -32,38 +30,38 @@ public class InvalidConfigException
     // Constructors.
 
     /**
-     * デフォルトコンストラクタです。
+     * Create instance without parameter.
      */
     public InvalidConfigException() {
         super();
     }
 
     /**
-     * 指定されたメッセージでインスタンスを生成します。
+     * Create instance with specified detail message.
      *
-     * @param message   例外メッセージ。
+     * @param message   exception detail message.
      */
     public InvalidConfigException(String message) {
         super(message);
     }
 
     /**
-     * この例外が発生した原因となった例外でインスタンスを生成します。
+     * Create instance with cause.
      *
-     * @param exception 原因となった例外のインスタンス。
+     * @param cause     instance of cause.
      */
-    public InvalidConfigException(Exception exception) {
-        super(exception);
+    public InvalidConfigException(Throwable cause) {
+        super(cause);
     }
 
     /**
-     * 指定されたメッセージと原因となった例外でインスタンスを生成します。
+     * Create instance with detail message and cause.
      *
-     * @param message   例外メッセージ。
-     * @param exception 原因となった例外のインスタンス。
+     * @param message   exception detail message.
+     * @param cause     instance of cause.
      */
-    public InvalidConfigException(String message, Exception exception) {
-        super(message, exception);
+    public InvalidConfigException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
 

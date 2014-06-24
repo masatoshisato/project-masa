@@ -54,7 +54,7 @@ public class ThrowableUtil
         if (t == null)
             throw new NullPointerException("t");
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         t.printStackTrace(ps);
         String str = baos.toString();

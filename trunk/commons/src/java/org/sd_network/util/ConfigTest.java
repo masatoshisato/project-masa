@@ -15,10 +15,13 @@
  */
 package org.sd_network.util;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import junit.framework.TestCase;
 
 /**
- * Unit test for Config class.
+ * Unit test for {@link Config} class.
  *
  * <p> $Id$
  *
@@ -28,13 +31,53 @@ public class ConfigTest
     extends TestCase
 {
     //////////////////////////////////////////////////////////// 
-    // Constructors and Initialisation.
+    // Private class fields.
+
+    /** Logger. */
+    private static final Logger _log = Logger.getLogger(
+        ConfigTest.class.getName());
+
+    /** 
+     * Parent directory for test property files. 
+     * This is a current working directory.
+     */
+    private static final String _parentDir =
+        System.getProperty("user.dir") +
+        System.getProperty("file.separator");
 
     //////////////////////////////////////////////////////////// 
-    // Test cases.
+    // Constructors and Initialisation.
 
-    public void testInit() {
+    public void setUp()
+        throws Exception
+    {
+        super.setUp();
+        Config.reset();
+        _log.log(Level.FINE, "--- Run test case [" + getName() + "]");
+    }
+
+    //////////////////////////////////////////////////////////// 
+    // Test cases for getInstance method.
+
+    /**
+     * Test case: Expect call {@link Config#getInstance()} method 
+     * after call {@link Config#load(String)} method.
+     * After get instance, check whether get contents of properties file is 
+     * normally.
+     *
+     * @throws   IOException
+     *          Throws if I/O error occurred when configration file is loaded.
+     */
+    public void testGetInstance()
+        throws IOException
+    {
+        // load configuration file.
+        Config.load(_parentDir + "test/testLoadAndGetInstance.properties");
+
+        // get instance of Config class.
         Config config = Config.getInstance();
+
+        // run test case.
         assertEquals(17, config.size());
 
         assertEquals("property1",
@@ -88,5 +131,85 @@ public class ConfigTest
         assertEquals("test",
                 config.getProperty(
                     "org.sd_network.db.ConnectionParameter.test2.Password"));
+    }
+
+    /**
+     * Test case: Expect throws IllegalStateException when call 
+     * {@link Config#getInstance()} method before call 
+     * {@link Config#load(String)} method.
+     */
+    public void testGetInstanceThrowIllegalStateException() {
+        try {
+            Config.getInstance();
+            fail(
+                    "This case expect throws IllegalStateException when call" +
+                    " getInstance method before call load method," +
+                    " but did not thrown exception.");
+        } catch (IllegalStateException e) {
+            // This is normally, do nothing.
+        }
+    }
+
+    //////////////////////////////////////////////////////////// 
+    // Test cases for load method.
+
+    /**
+     * Test case: Expect load properties from property file specified at
+     * parameter of load method.
+     */
+    public void testLoad() {
+        // This test case same contents at testGetInstance() method.
+        // Do nothing.
+    }
+
+    /**
+     * Test case: Expect throws IllegalArgumentException when call load method
+     * with illegal parameters as file path string.
+     *
+     * @throws   IOException
+     *          Throws if I/O error occurred when load configuration file.
+     *          But this exception is never thrown because of specified 
+     *          parameter to {@link Config#load(String)} is null or empty
+     *          string, IllegalArgumentExcepiton is thrown before execute
+     *          load process.
+     */
+    public void testLoadThrowIllegalArgumentException()
+        throws IOException
+    {
+        try {
+            Config.load((String) null);
+            fail(
+                    "This case expect throws IllegalArgumentExcepiton" +
+                    " when call load method with null parameter," +
+                    " but did not thrown exception.");
+        } catch (IllegalArgumentException e) {
+            // This is normally, do nothing.
+        }
+        try {
+            Config.load("");
+            fail(
+                    "This case expect throws IllegalArgumentException" +
+                    " when call load method with empty string, " +
+                    " but did not thrown exception.");
+        } catch (IllegalArgumentException e) {
+            // This is normally, do nothing.
+        }
+    }
+
+    /**
+     * Test case: Expect throws IOException when call load method with 
+     * parameter which is not file or not readable file.
+     */
+    public void testLoadThrowIOException() {
+        try {
+            Config.load(_parentDir + "test");
+            fail(
+                    "This case expect throws IOException" +
+                    " when call load method with parameter which is not" +
+                    " file path string or is not readable," +
+                    " but did not thrown exception.");
+        } catch (IOException e) {
+            // This is normally, do nothing.
+        }
     }
 }
